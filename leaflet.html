@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>test</title>
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+	<style type="text/css">
+		#map { height: 480px; }
+	</style>
+</head>
+<body>
+	<div id = 'map'></div>
+	<div id = 'titleBox'>
+	  Zip Code 11201 Vehicle Collisions Animated Heatmap (September 1 - Now)
+	</div>
+	<div id = 'chartBox'></div>
+	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+	<script src='heatmap.js'></script>
+  <script src='leaflet-heatmap.js'></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+	<script>
+		var testData = {
+		  max: 10,
+		  data: [{lat: -122.396995, lng:37.784391, count: 8}]
+		};
+
+		var baseLayer = L.tileLayer(
+		  'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+		    attribution: 'Yumiko',
+		    maxZoom: 20
+		  }
+		);
+
+		var cfg = {
+		  radius: 10,
+		  maxOpacity: 1, 
+		  scaleRadius: true, 
+		  useLocalExtrema: true,
+		  latField: 'lat',
+		  lngField: 'lng',
+		  valueField: 'count'
+		};
+
+		var heatmapLayer = new HeatmapOverlay(cfg);
+
+		var map = new L.Map('map', {
+		  center: new L.LatLng(37.784391,-122.396995),
+		  zoom: 12
+		  //layers: [baseLayer, heatmapLayer]
+		});
+		baseLayer.addTo(map);
+		heatmapLayer.setData(testData);
+		heatmapLayer.addTo(map);
+
+	</script>
+</body>
+</html>
