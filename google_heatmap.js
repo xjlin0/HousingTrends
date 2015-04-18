@@ -1,9 +1,12 @@
 (function(){
 	var map, pointarray, heatmap, toggleHeatmap;
+	var data_set_one = [],
+			data_set_two = [],
+			data_set_three = [];
 	var mapSetup = function(){
 		var mapOptions = {
-		  zoom: 12,
-		  center: new google.maps.LatLng(37.7846334, -122.3974137),
+		  zoom: 11,
+		  center: new google.maps.LatLng(37.7047558,-122.1628109),
 		  mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
 
@@ -38,28 +41,42 @@
 	  heatmap.setMap(map);
 	  heatmap.set('gradient', gradient);
 	  heatmap.set('radius', 20);
-	  setTimeout(function(){
-	  	heatmap.setMap(null);
-	  }, 1000);
+	  heatmap.set('opacity', 0.8);
+	  // setTimeout(function(){
+	  // 	heatmap.setMap(null);
+	  // }, 2000);
 	}
 
-	var test_array = function(i){
-		var data_weight = [1,25,50];
-		return [{location: new google.maps.LatLng(37.7846334,-122.3974137), weight: data_weight[i]}]
-	}
+	addHeatmapLayer(twelve);
 
-	for (var i = 0; i < 3; i++) {
-	    setTimeout(function(x) { 
-	    	return function() { 
-	    		addHeatmapLayer(test_array(x)); 
-	    	}; 
-	    }(i), 1100*i);
-	}
-  
-	document.getElementById("toggle_heatmap").addEventListener("click", function(){
-		heatmap.setMap(heatmap.getMap() ? null : map);
-	});
+	// var test_array = function(){
+	// 	// var counter = data_twelve.length;
+	// 	// for(var j=0; j < counter; j++){
+	// 	// 	data_set_one.push({location: new google.maps.LatLng(data_twelve[j].lat,data_twelve[j].lng), weight: (data_twelve[j].count/10000)});
+	// 	// }
+		
 
+	// 	// setTimeout(function(){
+	// 	// 	counter = data_thirteen.length;
+	// 	// 	for(var j=0; j < counter; j++){
+	// 	// 		data_set_two.push({location: new google.maps.LatLng(data_thirteen[j].lat,data_thirteen[j].lng), weight: (data_thirteen[j].count/10000)});
+	// 	// 	}
+	// 	// 	addHeatmapLayer(data_set_two);
+	// 	// }, 2000);
+
+	// 	// setTimeout(function(){
+	// 	// 	counter = data_fourteen.length;
+	// 	// 	for(var j=0; j < counter; j++){
+	// 	// 		data_set_three.push({location: new google.maps.LatLng(data_fourteen[j].lat,data_fourteen[j].lng), weight: (data_fourteen[j].count/10000)});
+	// 	// 	}
+	// 	// 	addHeatmapLayer(data_set_three);
+	// 	// },2000);
+	// }
+
+	// test_array();
 })();
+
+
+
 
 
