@@ -1,0 +1,7 @@
+#Here is the script to setup this rails app, Geokit can handle lat&lng in string form. email, format: { with: /\A[^@]+@[^@]+\z/ }, uniqueness: {case_sensitive: false}
+rails new HousingTrends -B --database=postgresql
+cd HousingTrends
+rails generate scaffold User name email:string:index password_digest spots:text
+rails generate model Average zip:integer eight:integer nine:integer ten:integer eleven:integer twelve:integer thirteen:integer fourteen:integer fifteen:integer
+rails generate model Opengeocoder street_address lat lng zip:integer
+rails generate model Realestate street_address lat lng zip:integer eight:integer nine:integer ten:integer eleven:integer twelve:integer thirteen:integer fourteen:integer fifteen:integer
