@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  zip: 1
+  eight: 1
+  nine: 1
+  ten: 1
+  eleven: 1
+  twelve: 1
+  thirteen: 1
+  fourteen: 1
+  fifteen: 1
+
+two:
+  zip: 1
+  eight: 1
+  nine: 1
+  ten: 1
+  eleven: 1
+  twelve: 1
+  thirteen: 1
+  fourteen: 1
+  fifteen: 1
