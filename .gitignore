@@ -12,3 +12,6 @@
 !/log/.keep
 /tmp
 .env
+/db/*.csv
+/db/*.CSV
+/db/*.sfc

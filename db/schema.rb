@@ -18,16 +18,16 @@ ActiveRecord::Schema.define(version: 20150420055319) do
 
   create_table "averages", force: :cascade do |t|
     t.integer  "zip"
-    t.integer  "eight"
-    t.integer  "nine"
-    t.integer  "ten"
-    t.integer  "eleven"
-    t.integer  "twelve"
-    t.integer  "thirteen"
-    t.integer  "fourteen"
-    t.integer  "fifteen"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer  "eight",      default: 100
+    t.integer  "nine",       default: 100
+    t.integer  "ten",        default: 100
+    t.integer  "eleven",     default: 100
+    t.integer  "twelve",     default: 100
+    t.integer  "thirteen",   default: 100
+    t.integer  "fourteen",   default: 100
+    t.integer  "fifteen",    default: 100
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   create_table "opengeocoders", force: :cascade do |t|
@@ -44,16 +44,16 @@ ActiveRecord::Schema.define(version: 20150420055319) do
     t.string   "lat"
     t.string   "lng"
     t.integer  "zip"
-    t.integer  "eight"
-    t.integer  "nine"
-    t.integer  "ten"
-    t.integer  "eleven"
-    t.integer  "twelve"
-    t.integer  "thirteen"
-    t.integer  "fourteen"
-    t.integer  "fifteen"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.integer  "eight",          default: 0
+    t.integer  "nine",           default: 0
+    t.integer  "ten",            default: 0
+    t.integer  "eleven",         default: 0
+    t.integer  "twelve",         default: 0
+    t.integer  "thirteen",       default: 0
+    t.integer  "fourteen",       default: 0
+    t.integer  "fifteen",        default: 0
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
   end
 
   create_table "users", force: :cascade do |t|
