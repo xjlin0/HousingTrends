@@ -5,7 +5,7 @@
 			data_set_three = [];
 	var mapSetup = function(){
 		var mapOptions = {
-		  zoom: 11,
+		  zoom: 17,
 		  center: new google.maps.LatLng(37.7047558,-122.1628109),
 		  mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
@@ -54,7 +54,7 @@
 	// 	// for(var j=0; j < counter; j++){
 	// 	// 	data_set_one.push({location: new google.maps.LatLng(data_twelve[j].lat,data_twelve[j].lng), weight: (data_twelve[j].count/10000)});
 	// 	// }
-		
+
 
 	// 	// setTimeout(function(){
 	// 	// 	counter = data_thirteen.length;
@@ -72,7 +72,13 @@
 	// 	// 	addHeatmapLayer(data_set_three);
 	// 	// },2000);
 	// }
-
+	google.maps.event.addListenerOnce(map, 'bounds_changed', function(){
+	  var bounds = this.getBounds();
+		var ne = bounds.getNorthEast();
+		var sw = bounds.getSouthWest();
+		console.log('Here is sw:',sw.toString(), 'here is ne:', ne.toString())
+	});   //((37.70186970040842, -122.16973099925843), (37.70764178721548, -122.15589080074159))
+	// Using ajax to tell serverside: Realestate.in_bounds([sw_point, ne_point]).all
 	// test_array();
 })();
 

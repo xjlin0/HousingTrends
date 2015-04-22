@@ -15,6 +15,9 @@ class CreateRealestates < ActiveRecord::Migration
       t.integer :fifteen, default: 0
 
       t.timestamps null: false
+
+      add_index :realestates, :lat
+      add_index :realestates, :lng
     end
   end
 end
