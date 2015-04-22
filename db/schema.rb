@@ -56,6 +56,9 @@ ActiveRecord::Schema.define(version: 20150420055319) do
     t.datetime "updated_at",                 null: false
   end
 
+  add_index "realestates", ["lat"], name: "index_realestates_on_lat", using: :btree
+  add_index "realestates", ["lng"], name: "index_realestates_on_lng", using: :btree
+
   create_table "users", force: :cascade do |t|
     t.string   "name"
     t.string   "email"
