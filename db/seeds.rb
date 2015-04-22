@@ -61,6 +61,7 @@ csv_files.each do |csv_file|
 
     p geocoding_one = Realestate.find_or_create_by(street_address: candidate.street_address)
     updated_value = geocoding_one.send(current_year_value) + net_value #some bldg have many units
+    geocoding_one.lat, geocoding_one.lng = candidate.lat, candidate.lng if geocoding_one.nil?
       geocoding_one.zip = candidate.zip unless candidate.zip.nil?
     p geocoding_one.send( (current_year_value+'=').to_sym, updated_value )
     p geocoding_one.save!
@@ -94,6 +95,7 @@ csv_files.each do |csv_file|
 
     p geocoding_one = Realestate.find_or_create_by(street_address: candidate.street_address)
     updated_value = geocoding_one.send(current_year_value) + net_value #some bldg have many units
+    geocoding_one.lat, geocoding_one.lng = candidate.lat, candidate.lng if geocoding_one.nil?
     geocoding_one.zip = candidate.zip unless candidate.zip.nil?
     p geocoding_one.send( (current_year_value+'=').to_sym, updated_value )
     p geocoding_one.save!
