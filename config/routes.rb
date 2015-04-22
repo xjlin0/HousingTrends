@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'realestates/show'
+
   resources :users
   #get 'realestates' => 'realestate#search'
   # The priority is based upon order of creation: first created -> highest priority.
