@@ -4,7 +4,7 @@
 # require 'normalic' #in Gemfile
 require 'csv'
 #require 'json' #rails come with json
-
+#require 'geo_ruby/geojson'    # geo_ruby got support for GeoJSON and ESRI SHP files
 ##### Staring the block of reading postal abbreviations of road names ####
 abrvs_file, abrv = "db/USPSabbreviations.CSV", Hash.new
 CSV.foreach(abrvs_file, headers: true ) do |road|

@@ -5,7 +5,7 @@
 			data_set_three = [];
 	var mapSetup = function(){
 		var mapOptions = {
-		  zoom: 17,
+		  zoom: 11,
 		  center: new google.maps.LatLng(37.7047558,-122.1628109),
 		  mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
@@ -72,17 +72,20 @@
 	// 	// 	addHeatmapLayer(data_set_three);
 	// 	// },2000);
 	// }
-	google.maps.event.addListenerOnce(map, 'bounds_changed', function(){
-	  var bounds = this.getBounds();
-		var ne = bounds.getNorthEast();
-		var sw = bounds.getSouthWest();
-		console.log('Here is sw:',sw.toString(), 'here is ne:', ne.toString())
-	});   //((37.70186970040842, -122.16973099925843), (37.70764178721548, -122.15589080074159))
-	// Using ajax to tell serverside: Realestate.in_bounds([sw_point, ne_point]).all
+
 	// test_array();
 })();
 
-
-
-
-
+// Jack's testing for getting boundaries from Google map current view
+// google.maps.event.addListenerOnce(map, 'bounds_changed', function() {
+//     var bounds = this.getBounds();
+//     var ne = bounds.getNorthEast();
+//     var sw = bounds.getSouthWest();
+//     console.log('Here is SW:', sw.toString(), 'here is NE:', ne.toString())
+// }); //((37.70186970040842, -122.16973099925843), (37.70764178721548, -122.15589080074159))
+// Using ajax to tell serverside: Realestate.in_bounds([sw_point, ne_point]).all
+// http://stackoverflow.com/questions/2832636/google-maps-api-v3-getbounds-is-undefined
+// google.maps.event.addListenerOnce(gmap, "bounds_changed", function(){
+//   loadMyMarkers();
+//   google.maps.event.addListener(gmap, "idle", loadMyMarkers);  //for IE8
+// });
