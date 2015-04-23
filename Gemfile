@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-
+gem 'normalic'
 gem 'geokit-rails'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.1'
@@ -28,9 +28,8 @@ gem 'bcrypt', '~> 3.1.7'
 gem 'puma'
 gem 'railties', '~> 4.2.1'
 gem 'sass-rails'
-gem 'clearance'
 gem 'rack-cors', :require => 'rack/cors'
-gem 'underscore-rails'
+gem 'httparty'
 
 # Use Unicorn as the app server
 # gem 'unicorn'

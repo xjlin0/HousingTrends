@@ -1,16 +1,13 @@
 //http://www.zillow.com/webservice/GetSearchResults.htm?zws-id=X1-ZWz1a9jqja8op7_1u0pu&address=1926+M+L+KING+JR+Way&citystatezip=Oakland%2C+CA
 
 $(function(){
+	var address = '1926 M L KING JR Way, Oakland, CA' 
 	$.ajax({
-		url:'http://www.zillow.com/webservice/GetSearchResults.htm?zws-id=X1-ZWz1a9jqja8op7_1u0pu&address=1926+M+L+KING+JR+Way&citystatezip=Oakland%2C+CA&callback=callback',
-		type: 'get',
-		dataType: 'jsonp',
-		jsonp: 'callback'
+		url:'/heatmaps/proxy',
+		data:{address:address}
 	}).done(function(serverData){
-		var ppp = xmlToJson(serverData)
 		console.log('success');
-		console.log(ppp);
-		debugger;
+		console.log(serverData);
 	}).fail(function(err){
 		console.log('error');
 	})
