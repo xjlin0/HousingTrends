@@ -110,7 +110,6 @@
 	}
 
 	var readingGeoJsonFile = function(){
-		console.log("reached");
 		var pieceData, feature_lat, feature_lng;
 	  // load the requested variable from the census API
 	  var xhr = new XMLHttpRequest();
