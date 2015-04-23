@@ -119,6 +119,18 @@
 		var pieceData, feature_lat, feature_lng;
 	  // load the requested variable from the census API
 	  var xhr = new XMLHttpRequest();
+
+
+
+	  // url should be server routes
+
+
+
+
+
+
+
+
 	  xhr.open('GET', 'https://api.myjson.com/bins/4lcdx');
 	  xhr.onload = function() {
 	    var housingData = JSON.parse(xhr.responseText);
@@ -150,6 +162,14 @@
 	
 
 	var inputAddress = document.getElementById('pac-input');
+
+
+
+	// marker's lat and lng return
+
+
+
+
 
 	var userInputStreet = function(){
 		var lat, lng;
