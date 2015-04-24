@@ -127,11 +127,11 @@
 //[boundary.getSouthWest().k, boundary.getSouthWest().D]
 //[37.37390910883563, -122.56537132480469]
 
-	// var url='/realestates/show?ne=['+[boundary.getNorthEast().k, boundary.getNorthEast().D].toString();
-	// var url=url.concat(']&sw=['+[boundary.getSouthWest().k, boundary.getSouthWest().D]+']')
-	  //xhr.open('GET', url);
+	  var url='/realestates/show?ne=['+[boundary.getNorthEast().k, boundary.getNorthEast().D].toString();
+	  var url=url.concat(']&sw=['+[boundary.getSouthWest().k, boundary.getSouthWest().D]+']')
+	  xhr.open('GET', url);
 	  
-	  xhr.open('GET', 'https://api.myjson.com/bins/4lcdx');
+	  //xhr.open('GET', 'https://api.myjson.com/bins/4lcdx');
 	  xhr.onload = function() {
 	    var housingData = JSON.parse(xhr.responseText);
 	    housingData.features.forEach(function(feature){
@@ -162,15 +162,15 @@
 	
 
 	var inputAddress = document.getElementById('pac-input');
-//[boundary.getNorthEast().k, boundary.getNorthEast().D]
-//[37.63537356402552, -122.16025047519531]
-	// var url='/realestates/show?ne=['+[boundary.getNorthEast().k, boundary.getNorthEast().D].toString();
+
 	// marker's lat and lng return
-	// var url=url.concat(']&sw=['+[boundary.getSouthWest().k, boundary.getSouthWest().D]+']')
-// Serverside: Store.in_bounds([sw_point,ne_point]).all #
-// @bounds = Geokit::Bounds.new([32.91663,-96.982841], [32.96302,-96.919495])
-//[boundary.getSouthWest().k, boundary.getSouthWest().D]
-//[37.37390910883563, -122.56537132480469]
+
+	
+	
+	
+	
+	
+	
 	var userInputStreet = function(){
 		var lat, lng;
 		if(places.length > 0){
