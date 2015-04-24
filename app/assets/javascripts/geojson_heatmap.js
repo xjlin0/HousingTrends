@@ -21,6 +21,7 @@
 	};
 
 	var map, pointarray, heatmap, toggleHeatmap, boundary;
+<<<<<<< HEAD
 	var year_data = {
 				eight:[], 
 				nine:[], 
@@ -38,7 +39,6 @@
 	//var styles = [{"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"color":"#e0efef"}]},{"featureType":"poi","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"hue":"#1900ff"},{"color":"#c0e8e8"}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":100},{"visibility":"simplified"}]},{"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"visibility":"on"},{"lightness":700}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#7dcdcd"}]}];
 	//var styledMap = new google.maps.StyledMapType(styles,
   //  {name: "Styled Map"});
-
 	var mapSetup = function(){
 		var mapOptions = {
 		  zoom: 11,
@@ -190,6 +190,10 @@
     var readingGeoJsonFile = function(){
     	var feature_lat, feature_lng;
     	var xhr = new XMLHttpRequest();
+	  //var url='/realestates/show?ne=['+[boundary.getNorthEast().k, boundary.getNorthEast().D].toString();
+	  //var url=url.concat(']&sw=['+[boundary.getSouthWest().k, boundary.getSouthWest().D]+']')
+	  //xhr.open('GET', url);		
+		
     	xhr.open('GET', 'https://api.myjson.com/bins/3inn1');
   	  xhr.onload = function() {
   	  	for(prop in year_data){
@@ -245,7 +249,3 @@
 	}
 
 	google.maps.event.addDomListener(window, "load", mapSetup);
-
-
-})();
-
