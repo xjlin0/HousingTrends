@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  
+  root 'users#index'
+
+  get 'heatmaps/zillow', :to => 'heatmaps#zillow', :as => 'zillow_heatmap'
+  get 'heatmaps/proxy', :to => 'heatmaps#proxy', :as => 'proxy_heatmap'
+
   resources :users
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
