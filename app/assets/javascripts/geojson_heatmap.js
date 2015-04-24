@@ -1,4 +1,4 @@
-(function(){
+/*(function(){
 	var zpid, zillow_result, contentString;
 
 	var zillow_api_call = function(address){
@@ -249,3 +249,4 @@
 
 })();
 
+*/
