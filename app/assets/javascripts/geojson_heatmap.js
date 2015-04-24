@@ -21,7 +21,7 @@
 	};
 
 	var map, pointarray, heatmap, toggleHeatmap, boundary;
-<<<<<<< HEAD
+
 	var year_data = {
 				eight:[], 
 				nine:[], 
@@ -249,3 +249,4 @@
 	}
 
 	google.maps.event.addDomListener(window, "load", mapSetup);
+	})();
