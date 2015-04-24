@@ -5,7 +5,7 @@
 			data_set_three = [];
 	var mapSetup = function(){
 		var mapOptions = {
-		  zoom: 11,
+		  zoom: 14,
 		  center: new google.maps.LatLng(37.7047558,-122.1628109),
 		  mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
@@ -31,6 +31,7 @@
 		];
 
 		var addHeatmapLayer = function(house_pricing_array) {
+			console.log(house_pricing_array[0]);
 			pointArray = new google.maps.MVCArray(house_pricing_array);
 		  heatmap = new google.maps.visualization.HeatmapLayer({
 		    data: pointArray
@@ -39,15 +40,16 @@
 		  heatmap.set('gradient', gradient);
 		  heatmap.set('radius', 20);
 		  heatmap.set('opacity', 0.8);
-		  // setTimeout(function(){
-		  // 	heatmap.setMap(null);
-		  // }, 2000);
+		  setTimeout(function(){
+		  	heatmap.setMap(null);
+		  }, 5000);
 		}
 
-		addHeatmapLayer(twelve);
-	}
+			addHeatmapLayer(data_twelve);
+			addHeatmapLayer(thirteen);
+			addHeatmapLayer(fourteen);
 
-	google.maps.event.addDomListener(window, "load", mapSetup);
+	}
 
 	// var test_array = function(){
 	// 	// var counter = data_twelve.length;
@@ -74,4 +76,6 @@
 	// }
 
 	// test_array();
+	google.maps.event.addDomListener(window, "load", mapSetup);
+
 })();
