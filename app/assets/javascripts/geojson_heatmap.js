@@ -1,31 +1,31 @@
-(function() {
-    var zpid, zillow_result, contentString;
+(function(){
+	var zpid, zillow_result, contentString;
 
-    var zillow_api_call = function(address) {
-        $.ajax({
-            url: 'heatmaps/proxy',
-            data: {
-                address: address
-            }
-        }).done(function(serverData) {
-            $('.service-heading').text(address);
-            console.log('success');
-            console.log(serverData);
-            if (serverData.searchresults.response != undefined) {
-                zillow_result = serverData.searchresults.response.results.result;
-                zpid = zillow_result.zpid;
-                console.log(zpid);
-                // How to find the marker's point from our database???
-                //contentString = "<h3>"+address+"</h3>"+"<div class='real_est_value'>"+zillow_result.zestimate.amount.__content__+"</div>";
-            }
-        }).fail(function(err) {
-            $('.service-heading').text(address);
-            console.log('error');
-        });
-    };
+	var zillow_api_call = function(address){
+			$.ajax({
+				url:'heatmaps/proxy',
+				data:{address:address}
+			}).done(function(serverData){
+				$('.zillow_address').text(address);
+				console.log('success');
+				console.log(serverData);
+				if(serverData.searchresults.response != undefined){
+					zillow_result = serverData.searchresults.response.results.result;
+					zpid = zillow_result.zpid;
+					console.log(zpid);
+					$('.zillow_chart').append('<img src="http://i.imgur.com/RTi0ps2.png"/>');
+					$('.zillow_address').append('<div class="zillow_est">Zillow Estimate Amount: $<b>' + zillow_result.zestimate.amount.__content__ + '</b></div>');
+					// How to find the marker's point from our database???
+					//contentString = "<h3>"+address+"</h3>"+"<div class='real_est_value'>"+zillow_result.zestimate.amount.__content__+"</div>";
+				}
+			}).fail(function(err){
+				$('.zillow_address').text(address);
+				console.log('error');
+			});
+	};
 
-    var map, pointarray, heatmap, toggleHeatmap, boundary;
-    var maxZoomLevel = 15;
+	var map, pointarray, heatmap, toggleHeatmap, boundary;
+	var minZoomLevel = 10;
 
     var year_data = {
             twelve: [],
@@ -55,7 +55,7 @@
 
         // Limit the zoom level
         google.maps.event.addListener(map, 'zoom_changed', function() {
-            if (map.getZoom() > maxZoomLevel) map.setZoom(maxZoomLevel);
+            if (map.getZoom() < minZoomLevel) map.setZoom(minZoomLevel);
         });
 
         // map.mapTypes.set('map_style', styledMap);
@@ -271,5 +271,5 @@
 
     }
 
-    google.maps.event.addDomListener(window, "load", mapSetup);
+	google.maps.event.addDomListener(window, "load", mapSetup);
 })();

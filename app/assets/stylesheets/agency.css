@@ -865,3 +865,12 @@ img::-moz-selection {
 body {
     webkit-tap-highlight-color: #fed136;
 }
+
+.zillow_address{
+    font-size: 2em;
+}
+
+.zillow_est{
+    font-size: 0.8em;
+    margin-top: 15px;
+}
