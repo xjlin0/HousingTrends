@@ -52,4 +52,17 @@ class HeatmapsController < ApplicationController
     render json: realestates_hash
 
 	end
+
+	def nearby
+		p params
+		p user_spot = Geokit::LatLng.new(params[:lat], params[:lon])
+		p local_realestates = Realestate.within(0.1, :origin => user_spot)
+		realestates_hash = { type: "FeatureCollection", features: Array.new }
+		local_realestates.each do |realestate|
+      value_year, years = Hash.new, (8..15).map(&:to_words)  #2008 ~ 2015 data
+      years.each{|yr| value_year[yr.to_sym] = realestate.send(yr) if realestate.send(yr) > 0 }
+      realestates_hash[:features] << { type: "Feature", geometry: { type: "Point", coordinates: [realestate.lng, realestate.lat] }, properties: value_year }
+    end
+    render json: realestates_hash
+	end
 end
