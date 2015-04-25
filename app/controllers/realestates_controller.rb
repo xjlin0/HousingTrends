@@ -14,7 +14,7 @@ class RealestatesController < ApplicationController
       years.each{|yr| value_year[yr.to_sym] = realestate.send(yr) if realestate.send(yr) > 0 }
       realestates_hash[:features] << { type: "Feature", geometry: { type: "Point", coordinates: [realestate.lng, realestate.lat] }, properties: value_year }
     end
-    format.json {  render json: realestates_hash }
+    render json: realestates_hash
   end
 end
 

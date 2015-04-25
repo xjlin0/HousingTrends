@@ -84,7 +84,7 @@ csv_files.each do |csv_file|
     net_value = row[" Taxable Value "].tr("$","").to_i  #this take care of "$" problems
     next if net_value < 1   #some tax records don't have st# or net value
     p $.  # printing out row number for processing monitoring
-    p address = row["Situs"] + row[" Zip "]  #be aware of some record of open address may not have zip!!!!
+    p address = row["Situs"] + " " + row[" Zip "][0..4]  #be aware of some record of open address may not have zip!!!!
     p candidates = Opengeocoder.where(street_address: address)
     if candidates.empty?
       (missed_tx += 1; p $., address, "address not found"; next)
@@ -104,3 +104,18 @@ csv_files.each do |csv_file|
   counter += 1
 end
 ##### End of SF County data processing
+
+##### Beginning of the Avarage calculation  SFC is CSV.read('sfc.zip').inject([]){|a,c|a << c.first.to_i}, and Alameda county zip = CSV.read('ala.zip').inject([]){|a,c|a << c.first.to_i}
+
+county_zips = ['db/ala.zips', 'db/sfc.zips']
+county_zips.each do |file|
+  CSV.read(file).inject([]){|a,c|a << c.first.to_i}.each do |zip_code|
+    p current_zip_area = Average.find_or_create_by(zip: zip_code)
+    (8..15).map(&:to_words).each do |year|
+      realestates = Realestate.where("zip = ? AND "+year+" > ?", zip_code, 1)
+      current_zip_area.send(year+"=", realestates.average(year).to_i)
+    end
+    current_zip_area.save!
+  end
+end
+##### End of the Avarage calculation
