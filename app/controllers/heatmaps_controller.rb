@@ -6,7 +6,7 @@ class HeatmapsController < ApplicationController
 	require 'uri'
 
 	def proxy
-		zwsid = 'X1-ZWz1a9jqja8op7_1u0pu'
+		zwsid = ENV['ZWSID']
 		address=Normalic::Address.parse(params[:address])#, don't forget to set zillow key in .env, and HTTParty gem and require 'uri' in rails configuration
 		normalized_address = address.number+"+"+address.street+"+"+address.type+"&citystatezip="+address.city+","+address.state
 		@print_address = address.number+" "+address.street+" "+address.type+" "+address.city+","+address.state

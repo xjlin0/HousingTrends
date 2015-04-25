@@ -26,8 +26,8 @@
 	var maxZoomLevel = 15;
 
 	var year_data = {
-				twelve:[], 
-				thirteen:[], 
+				twelve:[],
+				thirteen:[],
 				fourteen:[]
 			},
 			data_set_one = [],
@@ -55,9 +55,9 @@
 		google.maps.event.addListener(map, 'zoom_changed', function () {
 		    if (map.getZoom() > maxZoomLevel) map.setZoom(maxZoomLevel);
 		});
-		
+
 		// map.mapTypes.set('map_style', styledMap);
- 		
+
  	// 	map.setMapTypeId('map_style');
 
 		var input = (document.getElementById('pac-input'));
@@ -196,20 +196,20 @@
     var readingGeoJsonFile = function(){
     	var feature_lat, feature_lng;
     	var xhr = new XMLHttpRequest();
-	  //var url='/realestates/show?ne=['+[boundary.getNorthEast().k, boundary.getNorthEast().D].toString();
-	  //var url=url.concat(']&sw=['+[boundary.getSouthWest().k, boundary.getSouthWest().D]+']')
-	  //xhr.open('GET', url);		
-		
+	  var url='/heatmaps/show?ne='+boundary.getNorthEast().k+boundary.getNorthEast().D;
+	  url=url.concat('&sw='+boundary.getSouthWest().k+','+boundary.getSouthWest().D);
+    console.log(url)
+	  //xhr.open('GET', url);
+    // debugger
     //	xhr.open('GET', 'https://api.myjson.com/bins/3inn1');
     //  https://api.myjson.com/bins/531t5
-    //  
+    //
     xhr.open('GET', 'https://api.myjson.com/bins/531t5');
   	  xhr.onload = function() {
   	  	for(prop in year_data){
   	  		year_data[prop] = [];
   	  	}
   	    var housingData = JSON.parse(xhr.responseText);
-  	    debugger;
 	  	    housingData.features.forEach(function(feature){
 	  	    	feature_lat = feature.geometry.coordinates[1];
 	  	    	feature_lng = feature.geometry.coordinates[0];
@@ -231,7 +231,7 @@
 	  	  console.log(year_data);
 	  	  for(every_year in year_data){
 	  	  	addHeatmapLayer(year_data[every_year]);
-	  	  } 
+	  	  }
 	  	}
   	    xhr.send();
     }
