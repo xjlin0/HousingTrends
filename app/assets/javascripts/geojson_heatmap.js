@@ -12,7 +12,6 @@
 				if(serverData.searchresults.response != undefined){
 					zillow_result = serverData.searchresults.response.results.result;
 					zpid = zillow_result.zpid;
-					debugger;
 					console.log(zpid);
 					// How to find the marker's point from our database???
 					//contentString = "<h3>"+address+"</h3>"+"<div class='real_est_value'>"+zillow_result.zestimate.amount.__content__+"</div>";
@@ -168,28 +167,31 @@
       }, 5000);
     }
 
-    // var readingGeoJsonFile = function(){
-    // 	console.log("reached");
-    // 	var pieceData, feature_lat, feature_lng;
-    //   // load the requested variable from the census API
-    //   var xhr = new XMLHttpRequest();
-
-    //   xhr.open('GET', 'https://api.myjson.com/bins/4lcdx');
-    //   xhr.onload = function() {
-    //     var housingData = JSON.parse(xhr.responseText);
-    //     housingData.features.forEach(function(feature){
-    //     	feature_lat = feature.geometry.coordinates[1];
-    //     	feature_lng = feature.geometry.coordinates[0];
-    //     	if ((( feature_lat<= boundary.Da.j) && (feature_lat >= boundary.Da.k)) && ( (feature_lng <= boundary.va.k) && (feature_lng >= boundary.va.j))){
-    //     		pieceData = {location: new google.maps.LatLng(feature_lat,feature_lng), weight:feature.properties.weight};
-    // 	    	data_set_one.push(pieceData);
-    //     	}
-    //     });  
-    //     addHeatmapLayer(data_set_one);
-    //   }
-    //   xhr.send();
-
-    // }
+/*
+	Object {type: "FeatureCollection", features: Array[264]}
+	features: Array[264]
+	[0 … 99]
+	0: Object
+	geometry: Object
+	coordinates: Array[2]
+	0: -122.2833991
+	1: 37.799489
+	length: 2
+	__proto__: Array[0]
+	type: "Point"
+	__proto__: Object
+	properties: Object
+	eight: 101
+	eleven: 150
+	fifteen: 0
+	fourteen: 0
+	nine: 110
+	ten: 108
+	thirteen: 175
+	twelve: 134
+	__proto__: Object
+	type: "Feature"
+*/
 
     var readingGeoJsonFile = function(){
     	var feature_lat, feature_lng;
@@ -207,6 +209,7 @@
   	  		year_data[prop] = [];
   	  	}
   	    var housingData = JSON.parse(xhr.responseText);
+  	    debugger;
 	  	    housingData.features.forEach(function(feature){
 	  	    	feature_lat = feature.geometry.coordinates[1];
 	  	    	feature_lng = feature.geometry.coordinates[0];
