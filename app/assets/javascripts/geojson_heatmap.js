@@ -3,9 +3,10 @@
 
 	var zillow_api_call = function(address){
 			$.ajax({
-				url:'../heatmaps/proxy',
+				url:'heatmaps/proxy',
 				data:{address:address}
 			}).done(function(serverData){
+				$('.service-heading').text(address);
 				console.log('success');
 				console.log(serverData);
 				if(serverData.searchresults.response != undefined){
@@ -17,6 +18,7 @@
 					//contentString = "<h3>"+address+"</h3>"+"<div class='real_est_value'>"+zillow_result.zestimate.amount.__content__+"</div>";
 				}
 			}).fail(function(err){
+				$('.service-heading').text(address);
 				console.log('error');
 			});
 	};
