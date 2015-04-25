@@ -13,7 +13,7 @@
 					zillow_result = serverData.searchresults.response.results.result;
 					zpid = zillow_result.zpid;
 					console.log(zpid);
-					$('.zillow_chart').append('<img src="https://www.dropbox.com/s/wl8eipp0r8rur5w/Screenshot%202015-04-25%2013.09.59.png"/>');
+					$('.zillow_chart').append('<img src="http://i.imgur.com/RTi0ps2.png"/>');
 					$('.zillow_address').append('<div class="zillow_est">Zillow Estimate Amount: $<b>' + zillow_result.zestimate.amount.__content__ + '</b></div>');
 					// How to find the marker's point from our database???
 					//contentString = "<h3>"+address+"</h3>"+"<div class='real_est_value'>"+zillow_result.zestimate.amount.__content__+"</div>";
