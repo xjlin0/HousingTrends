@@ -229,7 +229,7 @@
             var xhr = new XMLHttpRequest();
             var url = '/heatmaps/show?ne=' + boundary.getNorthEast().k + boundary.getNorthEast().D;
             url = url.concat('&sw=' + boundary.getSouthWest().k + ',' + boundary.getSouthWest().D);
-            console.log(url)
+            debugger
             xhr.open('GET', url);
             // debugger
             //  xhr.open('GET', 'https://api.myjson.com/bins/3inn1');
