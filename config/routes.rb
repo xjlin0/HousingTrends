@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+
+  root 'users#index'
+
+  get 'heatmaps/zillow', :to => 'heatmaps#zillow', :as => 'zillow_heatmap'
+  get 'heatmaps/proxy', :to => 'heatmaps#proxy', :as => 'proxy_heatmap'
+
   get 'realestates/show'
 
   resources :users
