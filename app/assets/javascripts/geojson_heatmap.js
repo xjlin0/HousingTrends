@@ -58,6 +58,36 @@
             if (map.getZoom() < minZoomLevel) map.setZoom(minZoomLevel);
         });
 
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(37.8044, -122.2708),
+            map: map,
+            draggable:true,
+            title:"Alameda Housing Trend"
+        });
+
+        google.maps.event.addListener(marker,'dragend',function(event) {
+            // document.getElementById('lat').value = event.latLng.lat();
+            // document.getElementById('lng').value = event.latLng.lng();
+            console.dir(marker);
+            console.log(marker.position.D + " " + marker.position.k);
+
+            $.ajax({
+                url:'heatmaps/nearby',
+                data: {lon:marker.position.D, lat:marker.position.k}
+            }).done(function(serverData){
+                console.log('success');
+                contentString = "<div>"+marker.position.k + "," + marker.position.D+"</div>"+"<div>2012 average: <b>$"+serverData.features[0].properties.twelve+"</b></div>"+"<div>2013 average: <b>$"+serverData.features[0].properties.thirteen+"</b></div>"+"<div>2014 average: <b>$"+serverData.features[0].properties.fourteen+"</b></div>";
+                var infowindow = new google.maps.InfoWindow({
+                    content: contentString
+                });
+                infowindow.open(map,marker);
+                console.log('callback complete');
+            }).fail(function(error){
+                console.log('failed');
+            });
+
+        });
+
         // map.mapTypes.set('map_style', styledMap);
 
         //  map.setMapTypeId('map_style');
@@ -83,11 +113,11 @@
             //   marker.setMap(null);
             // }
 
-            for (var j = 0; j < 2; j++) {
+            // for (var j = 0; j < 2; j++) {
                 // For each place, get the icon, place name, and location.
                 // markers = [];
                 boundary = new google.maps.LatLngBounds();
-                for (var i = 0, place; place = store_markers[j][i]; i++) {
+                for (var i = 0, place; place = store_markers[0][i]; i++) {
                     var selected_address = place.formatted_address;
                     zillow_api_call(selected_address);
 
@@ -128,7 +158,7 @@
 
                     boundary.extend(place.geometry.location);
                 }
-            }
+            // }
 
             map.fitBounds(boundary);
         });
@@ -200,7 +230,6 @@
             var xhr = new XMLHttpRequest();
             var url = '/heatmaps/show?ne=' + boundary.getNorthEast().k + boundary.getNorthEast().D;
             url = url.concat('&sw=' + boundary.getSouthWest().k + ',' + boundary.getSouthWest().D);
-            debugger
             xhr.open('GET', url);
             // debugger
             //  xhr.open('GET', 'https://api.myjson.com/bins/3inn1');
