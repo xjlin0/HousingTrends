@@ -37,8 +37,8 @@ ActiveRecord::Schema.define(version: 20150423162347) do
 
   create_table "opengeocoders", force: :cascade do |t|
     t.string   "street_address"
-    t.string   "lat"
-    t.string   "lng"
+    t.float    "lat"
+    t.float    "lng"
     t.integer  "zip"
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
@@ -46,8 +46,8 @@ ActiveRecord::Schema.define(version: 20150423162347) do
 
   create_table "realestates", force: :cascade do |t|
     t.string   "street_address"
-    t.string   "lat"
-    t.string   "lng"
+    t.float    "lat"
+    t.float    "lng"
     t.integer  "zip"
     t.integer  "eight"
     t.integer  "nine"

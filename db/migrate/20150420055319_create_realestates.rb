@@ -2,8 +2,8 @@ class CreateRealestates < ActiveRecord::Migration
   def change
     create_table :realestates do |t|
       t.string :street_address
-      t.string :lat
-      t.string :lng
+      t.float :lat
+      t.float :lng
       t.integer :zip
       t.integer :eight
       t.integer :nine
