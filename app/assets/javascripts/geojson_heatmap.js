@@ -6,18 +6,20 @@
 				url:'heatmaps/proxy',
 				data:{address:address}
 			}).done(function(serverData){
-				$('.service-heading').text(address);
+				$('.zillow_address').text(address);
 				console.log('success');
 				console.log(serverData);
 				if(serverData.searchresults.response != undefined){
 					zillow_result = serverData.searchresults.response.results.result;
 					zpid = zillow_result.zpid;
 					console.log(zpid);
+					$('.zillow_chart').append('<img src="https://www.dropbox.com/s/wl8eipp0r8rur5w/Screenshot%202015-04-25%2013.09.59.png"/>');
+					$('.zillow_address').append('<div class="zillow_est">Zillow Estimate Amount: $<b>' + zillow_result.zestimate.amount.__content__ + '</b></div>');
 					// How to find the marker's point from our database???
 					//contentString = "<h3>"+address+"</h3>"+"<div class='real_est_value'>"+zillow_result.zestimate.amount.__content__+"</div>";
 				}
 			}).fail(function(err){
-				$('.service-heading').text(address);
+				$('.zillow_address').text(address);
 				console.log('error');
 			});
 	};
@@ -209,7 +211,6 @@
   	  		year_data[prop] = [];
   	  	}
   	    var housingData = JSON.parse(xhr.responseText);
-  	    debugger;
 	  	    housingData.features.forEach(function(feature){
 	  	    	feature_lat = feature.geometry.coordinates[1];
 	  	    	feature_lng = feature.geometry.coordinates[0];
