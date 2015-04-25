@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   get 'heatmaps/zillow', :to => 'heatmaps#zillow', :as => 'zillow_heatmap'
   get 'heatmaps/proxy', :to => 'heatmaps#proxy', :as => 'proxy_heatmap'
+  get 'heatmaps/show', :to => 'heatmaps#show', :as => 'show_heatmap'
 
   get 'realestates/show'
 

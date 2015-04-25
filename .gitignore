@@ -12,7 +12,11 @@
 !/log/.keep
 /tmp
 .env
+
+.Gemfile.lock
+.csv
+.CSV
 /db/*.csv
 /db/*.CSV
 /db/*.sfc
-Gemfile.lock
+
