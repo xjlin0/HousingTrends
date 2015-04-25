@@ -76,8 +76,7 @@
                 data: {lon:marker.position.D, lat:marker.position.k}
             }).done(function(serverData){
                 console.log('success');
-                debugger;
-                contentString = "<div></div>";
+                contentString = "<div>"+marker.position.k + "," + marker.position.D+"</div>"+"<div>2012 average: <b>$"+serverData.features[0].properties.twelve+"</b></div>"+"<div>2013 average: <b>$"+serverData.features[0].properties.thirteen+"</b></div>"+"<div>2014 average: <b>$"+serverData.features[0].properties.fourteen+"</b></div>";
                 var infowindow = new google.maps.InfoWindow({
                     content: contentString
                 });
@@ -231,7 +230,6 @@
             var xhr = new XMLHttpRequest();
             var url = '/heatmaps/show?ne=' + boundary.getNorthEast().k + boundary.getNorthEast().D;
             url = url.concat('&sw=' + boundary.getSouthWest().k + ',' + boundary.getSouthWest().D);
-            debugger
             xhr.open('GET', url);
             // debugger
             //  xhr.open('GET', 'https://api.myjson.com/bins/3inn1');
