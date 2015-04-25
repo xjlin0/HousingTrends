@@ -58,6 +58,35 @@
             if (map.getZoom() < minZoomLevel) map.setZoom(minZoomLevel);
         });
 
+        var marker = new google.maps.Marker({
+            position: new google.maps.LatLng(37.8044, -122.2708),
+            map: map,
+            draggable:true,
+            title:"Alameda Housing Trend"
+        });
+
+        google.maps.event.addListener(marker,'dragend',function(event) {
+            // document.getElementById('lat').value = event.latLng.lat();
+            // document.getElementById('lng').value = event.latLng.lng();
+            console.dir(marker);
+            console.log(marker.position.D + " " + marker.position.k);
+
+            // $.ajax({
+            //     url:'heatmaps/nearby'
+            // }).done(function(serverData){
+            //     console.log('success');
+            //     contentString = "<div>Hello</div>";
+            //     var infowindow = new google.maps.InfoWindow({
+            //         content: contentString
+            //     });
+            //     infowindow.open(map,marker);
+            //     console.log('callback complete');
+            // }).fail(function(error){
+            //     console.log('failed');
+            // });
+
+        });
+
         // map.mapTypes.set('map_style', styledMap);
 
         //  map.setMapTypeId('map_style');
