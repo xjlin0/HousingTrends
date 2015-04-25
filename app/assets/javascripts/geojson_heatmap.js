@@ -3,9 +3,10 @@
 
 	var zillow_api_call = function(address){
 			$.ajax({
-				url:'/heatmaps/proxy',
+				url:'heatmaps/proxy',
 				data:{address:address}
 			}).done(function(serverData){
+				$('.service-heading').text(address);
 				console.log('success');
 				console.log(serverData);
 				if(serverData.searchresults.response != undefined){
@@ -16,11 +17,13 @@
 					//contentString = "<h3>"+address+"</h3>"+"<div class='real_est_value'>"+zillow_result.zestimate.amount.__content__+"</div>";
 				}
 			}).fail(function(err){
+				$('.service-heading').text(address);
 				console.log('error');
 			});
 	};
 
 	var map, pointarray, heatmap, toggleHeatmap, boundary;
+	var maxZoomLevel = 15;
 
 	var year_data = {
 				twelve:[], 
@@ -37,8 +40,8 @@
 	var mapSetup = function(){
 		var mapOptions = {
 		  zoom: 11,
-		  // center: new google.maps.LatLng(37.7047558,-122.1628109),
-		  center: new google.maps.LatLng(37.5047558,-122.3628109),
+		  center: new google.maps.LatLng(37.7047558,-122.1628109),
+		  //center: new google.maps.LatLng(37.5047558,-122.3628109),
 		  mapTypeControlOptions: {
 		  	// mapTypeId: [google.maps.MapTypeId.ROADMAP, 'map_style']
 		  	mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -47,6 +50,11 @@
 
 		map = new google.maps.Map(document.getElementById('heatmap-canvas'),
 		    mapOptions);
+
+		// Limit the zoom level
+		google.maps.event.addListener(map, 'zoom_changed', function () {
+		    if (map.getZoom() > maxZoomLevel) map.setZoom(maxZoomLevel);
+		});
 		
 		// map.mapTypes.set('map_style', styledMap);
  		
@@ -159,28 +167,31 @@
       }, 5000);
     }
 
-    // var readingGeoJsonFile = function(){
-    // 	console.log("reached");
-    // 	var pieceData, feature_lat, feature_lng;
-    //   // load the requested variable from the census API
-    //   var xhr = new XMLHttpRequest();
-
-    //   xhr.open('GET', 'https://api.myjson.com/bins/4lcdx');
-    //   xhr.onload = function() {
-    //     var housingData = JSON.parse(xhr.responseText);
-    //     housingData.features.forEach(function(feature){
-    //     	feature_lat = feature.geometry.coordinates[1];
-    //     	feature_lng = feature.geometry.coordinates[0];
-    //     	if ((( feature_lat<= boundary.Da.j) && (feature_lat >= boundary.Da.k)) && ( (feature_lng <= boundary.va.k) && (feature_lng >= boundary.va.j))){
-    //     		pieceData = {location: new google.maps.LatLng(feature_lat,feature_lng), weight:feature.properties.weight};
-    // 	    	data_set_one.push(pieceData);
-    //     	}
-    //     });  
-    //     addHeatmapLayer(data_set_one);
-    //   }
-    //   xhr.send();
-
-    // }
+/*
+	Object {type: "FeatureCollection", features: Array[264]}
+	features: Array[264]
+	[0 … 99]
+	0: Object
+	geometry: Object
+	coordinates: Array[2]
+	0: -122.2833991
+	1: 37.799489
+	length: 2
+	__proto__: Array[0]
+	type: "Point"
+	__proto__: Object
+	properties: Object
+	eight: 101
+	eleven: 150
+	fifteen: 0
+	fourteen: 0
+	nine: 110
+	ten: 108
+	thirteen: 175
+	twelve: 134
+	__proto__: Object
+	type: "Feature"
+*/
 
     var readingGeoJsonFile = function(){
     	var feature_lat, feature_lng;
@@ -198,6 +209,7 @@
   	  		year_data[prop] = [];
   	  	}
   	    var housingData = JSON.parse(xhr.responseText);
+  	    debugger;
 	  	    housingData.features.forEach(function(feature){
 	  	    	feature_lat = feature.geometry.coordinates[1];
 	  	    	feature_lng = feature.geometry.coordinates[0];
