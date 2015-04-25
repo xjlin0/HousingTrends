@@ -23,14 +23,9 @@
 	var map, pointarray, heatmap, toggleHeatmap, boundary;
 
 	var year_data = {
-				eight:[], 
-				nine:[], 
-				ten:[], 
-				eleven:[], 
 				twelve:[], 
 				thirteen:[], 
-				fourteen:[], 
-				fifteen:[]
+				fourteen:[]
 			},
 			data_set_one = [],
 			store_markers = [],
@@ -159,9 +154,9 @@
       heatmap.set('gradient', gradient);
       heatmap.set('radius', 20);
       heatmap.set('opacity', 0.8);
-      // setTimeout(function(){
-      // 	heatmap.setMap(null);
-      // }, 2000);
+      setTimeout(function(){
+      	heatmap.setMap(null);
+      }, 5000);
     }
 
     // var readingGeoJsonFile = function(){
@@ -194,7 +189,10 @@
 	  //var url=url.concat(']&sw=['+[boundary.getSouthWest().k, boundary.getSouthWest().D]+']')
 	  //xhr.open('GET', url);		
 		
-    	xhr.open('GET', 'https://api.myjson.com/bins/3inn1');
+    //	xhr.open('GET', 'https://api.myjson.com/bins/3inn1');
+    //  https://api.myjson.com/bins/531t5
+    //  
+    xhr.open('GET', 'https://api.myjson.com/bins/531t5');
   	  xhr.onload = function() {
   	  	for(prop in year_data){
   	  		year_data[prop] = [];
@@ -205,19 +203,21 @@
 	  	    	feature_lng = feature.geometry.coordinates[0];
 	  	    	if ((( feature_lat <= boundary.Da.j) && (feature_lat >= boundary.Da.k)) && ( (feature_lng <= boundary.va.k) && (feature_lng >= boundary.va.j))){
 	  	    		each_data_per_year = feature.properties;
-	  	    		for(year in each_data_per_year){
-	  	    			for(prop in year_data){
-	  	    				if (year === prop){
-	  	    					year_data[year].push({location: new google.maps.LatLng(feature_lat,feature_lng), weight:each_data_per_year[year]});
-	  	    				}
-	  	    			}
-	  	    		}
+	  	    		year_data.twelve.push({location: new google.maps.LatLng(feature_lat,feature_lng), weight:each_data_per_year.twelve});
+	  	    		year_data.thirteen.push({location: new google.maps.LatLng(feature_lat,feature_lng), weight:each_data_per_year.thirteen});
+	  	    		year_data.fourteen.push({location: new google.maps.LatLng(feature_lat,feature_lng), weight:each_data_per_year.fourteen});
+	  	    		// for(year in each_data_per_year){
+	  	    		// 	for(prop in year_data){
+	  	    		// 		if (year === prop){
+	  	    		// 			year_data[year].push({location: new google.maps.LatLng(feature_lat,feature_lng), weight:each_data_per_year[year]});
+	  	    		// 		}
+	  	    		// 	}
+	  	    		// }
 	  	    	}
 	  	    });
 
 	  	  console.log(year_data);
 	  	  for(every_year in year_data){
-
 	  	  	addHeatmapLayer(year_data[every_year]);
 	  	  } 
 	  	}
