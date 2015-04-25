@@ -71,19 +71,21 @@
             console.dir(marker);
             console.log(marker.position.D + " " + marker.position.k);
 
-            // $.ajax({
-            //     url:'heatmaps/nearby'
-            // }).done(function(serverData){
-            //     console.log('success');
-            //     contentString = "<div>Hello</div>";
-            //     var infowindow = new google.maps.InfoWindow({
-            //         content: contentString
-            //     });
-            //     infowindow.open(map,marker);
-            //     console.log('callback complete');
-            // }).fail(function(error){
-            //     console.log('failed');
-            // });
+            $.ajax({
+                url:'heatmaps/nearby',
+                data: {lon:marker.position.D, lat:marker.position.k}
+            }).done(function(serverData){
+                console.log('success');
+                debugger;
+                contentString = "<div></div>";
+                var infowindow = new google.maps.InfoWindow({
+                    content: contentString
+                });
+                infowindow.open(map,marker);
+                console.log('callback complete');
+            }).fail(function(error){
+                console.log('failed');
+            });
 
         });
 
