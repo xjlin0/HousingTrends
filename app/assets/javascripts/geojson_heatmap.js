@@ -36,17 +36,17 @@
         store_markers = [],
         places = [],
         markers = [];
-    //var styles = [{"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"color":"#e0efef"}]},{"featureType":"poi","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"hue":"#1900ff"},{"color":"#c0e8e8"}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":100},{"visibility":"simplified"}]},{"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"visibility":"on"},{"lightness":700}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#7dcdcd"}]}];
-    //var styledMap = new google.maps.StyledMapType(styles,
-    //  {name: "Styled Map"});
+    var styles = [{"featureType":"administrative","elementType":"all","stylers":[{"visibility":"on"},{"lightness":33}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2e5d4"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#c5dac6"}]},{"featureType":"poi.park","elementType":"labels","stylers":[{"visibility":"on"},{"lightness":20}]},{"featureType":"road","elementType":"all","stylers":[{"lightness":20}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#c5c6c6"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#e4d7c6"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#fbfaf7"}]},{"featureType":"water","elementType":"all","stylers":[{"visibility":"on"},{"color":"#acbcc9"}]}];
+    var styledMap = new google.maps.StyledMapType(styles,
+     {name: "Styled Map"});
     var mapSetup = function() {
         var mapOptions = {
             zoom: 17,
             center: new google.maps.LatLng(37.8044, -122.2708),
             //center: new google.maps.LatLng(37.5047558,-122.3628109),
             mapTypeControlOptions: {
-                // mapTypeId: [google.maps.MapTypeId.ROADMAP, 'map_style']
-                mapTypeId: google.maps.MapTypeId.ROADMAP
+                mapTypeId: [google.maps.MapTypeId.ROADMAP, 'map_style']
+                //mapTypeId: google.maps.MapTypeId.ROADMAP
             }
         };
 
@@ -88,9 +88,9 @@
 
         });
 
-        // map.mapTypes.set('map_style', styledMap);
+        map.mapTypes.set('map_style', styledMap);
 
-        //  map.setMapTypeId('map_style');
+        map.setMapTypeId('map_style');
 
         var input = (document.getElementById('pac-input'));
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
