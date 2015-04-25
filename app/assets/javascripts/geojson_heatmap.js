@@ -21,6 +21,7 @@
 	};
 
 	var map, pointarray, heatmap, toggleHeatmap, boundary;
+	var maxZoomLevel = 15;
 
 	var year_data = {
 				twelve:[], 
@@ -37,8 +38,8 @@
 	var mapSetup = function(){
 		var mapOptions = {
 		  zoom: 11,
-		  // center: new google.maps.LatLng(37.7047558,-122.1628109),
-		  center: new google.maps.LatLng(37.5047558,-122.3628109),
+		  center: new google.maps.LatLng(37.7047558,-122.1628109),
+		  //center: new google.maps.LatLng(37.5047558,-122.3628109),
 		  mapTypeControlOptions: {
 		  	// mapTypeId: [google.maps.MapTypeId.ROADMAP, 'map_style']
 		  	mapTypeId: google.maps.MapTypeId.ROADMAP
@@ -47,6 +48,11 @@
 
 		map = new google.maps.Map(document.getElementById('heatmap-canvas'),
 		    mapOptions);
+
+		// Limit the zoom level
+		google.maps.event.addListener(map, 'zoom_changed', function () {
+		    if (map.getZoom() > maxZoomLevel) map.setZoom(maxZoomLevel);
+		});
 		
 		// map.mapTypes.set('map_style', styledMap);
  		
