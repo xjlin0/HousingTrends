@@ -3,7 +3,7 @@
 
 	var zillow_api_call = function(address){
 			$.ajax({
-				url:'/heatmaps/proxy',
+				url:'../heatmaps/proxy',
 				data:{address:address}
 			}).done(function(serverData){
 				console.log('success');
@@ -11,6 +11,7 @@
 				if(serverData.searchresults.response != undefined){
 					zillow_result = serverData.searchresults.response.results.result;
 					zpid = zillow_result.zpid;
+					debugger;
 					console.log(zpid);
 					// How to find the marker's point from our database???
 					//contentString = "<h3>"+address+"</h3>"+"<div class='real_est_value'>"+zillow_result.zestimate.amount.__content__+"</div>";
