@@ -112,11 +112,11 @@
             //   marker.setMap(null);
             // }
 
-            for (var j = 0; j < 2; j++) {
+            // for (var j = 0; j < 2; j++) {
                 // For each place, get the icon, place name, and location.
                 // markers = [];
                 boundary = new google.maps.LatLngBounds();
-                for (var i = 0, place; place = store_markers[j][i]; i++) {
+                for (var i = 0, place; place = store_markers[0][i]; i++) {
                     var selected_address = place.formatted_address;
                     zillow_api_call(selected_address);
 
@@ -157,7 +157,7 @@
 
                     boundary.extend(place.geometry.location);
                 }
-            }
+            // }
 
             map.fitBounds(boundary);
         });
