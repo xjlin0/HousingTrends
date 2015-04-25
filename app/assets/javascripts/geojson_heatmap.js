@@ -40,6 +40,7 @@
 	//var styledMap = new google.maps.StyledMapType(styles,
   //  {name: "Styled Map"});
 	var mapSetup = function(){
+		$('.search_history').html('<div>'+localStorage.searchHistory+'</div>');
 		var mapOptions = {
 		  zoom: 11,
 		  center: new google.maps.LatLng(37.7047558,-122.1628109),
@@ -262,4 +263,5 @@
 	}
 
 	google.maps.event.addDomListener(window, "load", mapSetup);
-	})();
+
+})();
