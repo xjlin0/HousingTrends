@@ -1,6 +1,6 @@
 (function(){
 	var zpid, zillow_result, contentString;
-    var search_geoinfo = new google.maps.LatLng(37.8044, -122.2708);
+    var search_geoinfo = new google.maps.LatLng(37.5869, -122.0258);
 
 	var zillow_api_call = function(address){
 			$.ajax({
@@ -14,7 +14,7 @@
 					zillow_result = serverData.searchresults.response.results.result;
 					zpid = zillow_result.zpid;
 					console.log(zpid);
-					$('.zillow_chart').append('<img src="http://i.imgur.com/RTi0ps2.png"/>');
+					$('.zillow_chart').append('<img src="http://i.imgur.com/NKru0SZ.png"/>');
 					$('.zillow_address').append('<div class="zillow_est">Zillow Estimate Amount: $<b>' + zillow_result.zestimate.amount.__content__ + '</b></div>');
 					// How to find the marker's point from our database???
 					//contentString = "<h3>"+address+"</h3>"+"<div class='real_est_value'>"+zillow_result.zestimate.amount.__content__+"</div>";
@@ -42,8 +42,8 @@
      {name: "Styled Map"});
     var mapSetup = function() {
         var mapOptions = {
-            zoom: 17,
-            center: new google.maps.LatLng(37.8044, -122.2708),
+            zoom: 15,
+            center: new google.maps.LatLng(37.5869, -122.0258),
             //center: new google.maps.LatLng(37.5047558,-122.3628109),
             mapTypeControlOptions: {
                 mapTypeId: [google.maps.MapTypeId.ROADMAP, 'map_style']
