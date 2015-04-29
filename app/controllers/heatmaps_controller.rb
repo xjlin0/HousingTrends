@@ -31,14 +31,14 @@ class HeatmapsController < ApplicationController
 # //   google.maps.event.addListener(gmap, "idle", loadMyMarkers);  //for IE8
 # // });
 #http://localhost:3000/heatmaps/show?sw=37.70186970040842,-122.16973099925843&ne=37.70764178721548,-122.15589080074159
-		p "heatmap controller line 18"
-		p params
-		p swa = params[:sw].split(',').map(&:to_f)
-		p nea = params[:ne].split(',').map(&:to_f)
-		p "line 37"
-		p sw = Geokit::LatLng.new(swa.first, swa.last)
-		p ne = Geokit::LatLng.new(nea.first, nea.last)
-		p local_realestates = Realestate.in_bounds([sw, ne])
+		#p "heatmap controller line 18"
+		#p params
+		swa = params[:sw].split(',').map(&:to_f)
+		nea = params[:ne].split(',').map(&:to_f)
+		#p "line 37"
+		sw = Geokit::LatLng.new(swa.first, swa.last)
+		ne = Geokit::LatLng.new(nea.first, nea.last)
+		local_realestates = Realestate.in_bounds([sw, ne])
 		#p1=Geokit::LatLng.new(37.70186970040842, -122.16973099925843)
 		#p2=Geokit::LatLng.new(37.70764178721548, -122.15589080074159)
 		#Geokit::Bounds.new does NOT work
@@ -54,13 +54,27 @@ class HeatmapsController < ApplicationController
 	end
 
 	def nearby
-		p params
-		p user_spot = Geokit::LatLng.new(params[:lat], params[:lon])
-		p local_realestates = Realestate.within(0.1, :origin => user_spot)
+		p "heatmap controler line 57", params
+		p user_spot = [params[:lat].to_f, params[:lon].to_f]
+		p local_realestates = Realestate.closest(:origin => user_spot)
+    p local_average = Average.where(zip: local_realestates.first.zip).first if local_realestates.first.zip
 		realestates_hash = { type: "FeatureCollection", features: Array.new }
 		local_realestates.each do |realestate|
-      value_year, years = Hash.new, (8..15).map(&:to_words)  #2008 ~ 2015 data
-      years.each{|yr| value_year[yr.to_sym] = realestate.send(yr) if realestate.send(yr) > 0 }
+      value_year, first_value, years = {street_address: realestate.street_address}, 0, (8..15).map(&:to_words)  #2008 ~ 2015 data
+      # years.each{|yr| value_year[yr.to_sym] = realestate.send(yr) if realestate.send(yr) > 0 }
+      years.each do |yr|
+        next if realestate.send(yr) == 0  #next year if there's no current year data
+        p first_value = realestate.send(yr) if first_value == 0  #this set its initial value and will be used as 100% if no zip avarage data
+        p "line 68", realestate.send(yr), local_average.send(yr)
+        if local_average && local_average.send(yr) > 0
+          p "line 70"
+          p value_year[yr.to_sym] = (realestate.send(yr)/local_average.send(yr).to_f*100).round(2)
+        else
+          p "line 73"
+          p value_year[yr.to_sym] = (realestate.send(yr)/first_value.to_f*100).round(2)
+        end
+      end
+      p "line 77", value_year
       realestates_hash[:features] << { type: "Feature", geometry: { type: "Point", coordinates: [realestate.lng, realestate.lat] }, properties: value_year }
     end
     render json: realestates_hash
