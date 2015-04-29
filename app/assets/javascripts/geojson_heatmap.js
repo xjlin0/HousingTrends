@@ -308,5 +308,10 @@
 
     }
 
+    // var map_with_heat = function(){
+    //     mapSetup();
+    //     readingGeoJsonFile();
+    // }
+
 	google.maps.event.addDomListener(window, "load", mapSetup);
 })();
