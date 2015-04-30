@@ -5,8 +5,8 @@ class RealestatesController < ApplicationController
   def show
     #This method should return geojson for broser to overlay the realestates data
     #It will receieve ajax get calls: Realestate.in_bounds([sw_point, ne_point]).all
-    p "in RealestatesController line 5"
-    p params # { sw: [37.70186970040842, -122.16973099925843], ne: [37.70764178721548, -122.15589080074159] }
+    #p "in RealestatesController line 5"
+    #p params # { sw: [37.70186970040842, -122.16973099925843], ne: [37.70764178721548, -122.15589080074159] }
     realestates_hash = { type: "FeatureCollection", features: Array.new }
     realestates = Realestate.in_bounds(params[:sw], params[:ne]).all #double check if all is needed
     realestates.each do |realestate|
