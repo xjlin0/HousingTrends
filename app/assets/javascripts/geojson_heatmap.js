@@ -77,8 +77,19 @@
                     url:'heatmaps/nearby',
                     data: {lon:marker.position.lng(), lat:marker.position.lat()}
                 }).done(function(serverData){
-                    console.log('success');
-                    contentString = "<div>"+serverData.features[0].properties.street_address+"</div>"+"<div>2012 average: <b>"+serverData.features[0].properties.twelve+"%</b></div>"+"<div>2013 average: <b>"+serverData.features[0].properties.thirteen+"%</b></div>"+"<div>2014 average:<b>"+serverData.features[0].properties.fourteen+"%</b></div>";
+                    var yearsWords = ["eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen"];  // are there to_words function in JS?
+                    var years = [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015];
+                    var contentString = "<div> The value of "+serverData.features[0].properties.street_address+"</div>";//+"<div>2012 average: <b>"+serverData.features[0].properties.twelve+"%</b></div>"+"<div>2013 average: <b>"+serverData.features[0].properties.thirteen+"%</b></div>"+"<div>2014 average:<b>"+serverData.features[0].properties.fourteen+"%</b></div>";
+                    contentString = contentString.concat("<div>compared to the average of the same zip code:</div>")
+                    for (var i = 0 ; i < years.length ; i++){
+                        console.log('array '+years[i]+' '+yearsWords[i])
+                        console.log('long '+ serverData.features[0].properties[yearsWords[i]])
+                        if (typeof serverData.features[0].properties[yearsWords[i]] === 'undefined'){ console.log('skip');
+                        }else{
+                            contentString = contentString.concat("<div>"+years[i]+" was: <b>"+serverData.features[0].properties[yearsWords[i]]+"%</b></div>")
+                        }
+                    } // end of looping all property values of the clicked object
+                    console.log(contentString)
                     var infowindow = new google.maps.InfoWindow({
                         content: contentString
                     });
@@ -87,14 +98,10 @@
                 }).fail(function(error){
                     console.log('failed');
                 });
-
             });
         }
         drop_marker();
-
-
         map.mapTypes.set('map_style', styledMap);
-
         map.setMapTypeId('map_style');
 
         var input = (document.getElementById('pac-input'));
