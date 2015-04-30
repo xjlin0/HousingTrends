@@ -142,7 +142,7 @@
                     };
 
                     var temp_marker = place.geometry.location;
-                    search_geoinfo = new google.maps.LatLng(temp_marker.k, temp_marker.D);
+                    search_geoinfo = new google.maps.LatLng(temp_marker.lat(), temp_marker.lng());
                     drop_marker();
                     // Create a marker for each place.
                     var marker = new google.maps.Marker({
