@@ -72,13 +72,13 @@
                 // document.getElementById('lng').value = event.latLng.lng();
                 console.dir(marker);
                 console.log(marker.position.lng() + " " + marker.position.lat());
-                
+
                 $.ajax({
                     url:'heatmaps/nearby',
                     data: {lon:marker.position.lng(), lat:marker.position.lat()}
                 }).done(function(serverData){
                     console.log('success');
-                    contentString = "<div>"+marker.position.lat() + "," + marker.position.lng()+"</div>"+"<div>2012 average: <b>$"+serverData.features[0].properties.twelve+"</b></div>"+"<div>2013 average: <b>$"+serverData.features[0].properties.thirteen+"</b></div>"+"<div>2014 average: <b>$"+serverData.features[0].properties.fourteen+"</b></div>";
+                    contentString = "<div>"+serverData.features[0].properties.street_address+"</div>"+"<div>2012 average: <b>"+serverData.features[0].properties.twelve+"%</b></div>"+"<div>2013 average: <b>"+serverData.features[0].properties.thirteen+"%</b></div>"+"<div>2014 average:<b>"+serverData.features[0].properties.fourteen+"%</b></div>";
                     var infowindow = new google.maps.InfoWindow({
                         content: contentString
                     });
@@ -88,10 +88,10 @@
                     console.log('failed');
                 });
 
-            }); 
+            });
         }
         drop_marker();
-        
+
 
         map.mapTypes.set('map_style', styledMap);
 
