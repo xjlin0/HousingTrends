@@ -185,39 +185,39 @@
             searchBox.setBounds(boundary);
         });
 
-        var gradient = [
-            'rgba(255, 255, 255, 0)',
-            '#FCEDEF',
-            '#FADBDE',
-            '#F7C9CE',
-            '#F5B8BE',
-            '#F2A6AD',
-            '#F0949D',
-            '#ED828D',
-            '#EB707C',
-            '#E85E6C',
-            '#E64C5C',
-            '#E33B4B',
-            '#E0293B',
-            '#D61F31'
-        ];  // fourteen colors from http://colllor.com/e85d6b
-
         // var gradient = [
-        //     'rgba(0, 255, 255, 0)',
-        //     'rgba(0, 255, 255, 1)',
-        //     'rgba(0, 191, 255, 1)',
-        //     'rgba(0, 127, 255, 1)',
-        //     'rgba(0, 63, 255, 1)',
-        //     'rgba(0, 0, 255, 1)',
-        //     'rgba(0, 0, 223, 1)',
-        //     'rgba(0, 0, 191, 1)',
-        //     'rgba(0, 0, 159, 1)',
-        //     'rgba(0, 0, 127, 1)',
-        //     'rgba(63, 0, 91, 1)',
-        //     'rgba(127, 0, 63, 1)',
-        //     'rgba(191, 0, 31, 1)',
-        //     'rgba(255, 0, 0, 1)'
-        // ]; // original google color
+        //     'rgba(255, 255, 255, 0)',
+        //     '#FCEDEF',
+        //     '#FADBDE',
+        //     '#F7C9CE',
+        //     '#F5B8BE',
+        //     '#F2A6AD',
+        //     '#F0949D',
+        //     '#ED828D',
+        //     '#EB707C',
+        //     '#E85E6C',
+        //     '#E64C5C',
+        //     '#E33B4B',
+        //     '#E0293B',
+        //     '#D61F31'
+        // ];  // fourteen colors from http://colllor.com/e85d6b
+
+        var gradient = [
+            'rgba(0, 255, 255, 0)',
+            'rgba(0, 255, 255, 1)',
+            'rgba(0, 191, 255, 1)',
+            'rgba(0, 127, 255, 1)',
+            'rgba(0, 63, 255, 1)',
+            'rgba(0, 0, 255, 1)',
+            'rgba(0, 0, 223, 1)',
+            'rgba(0, 0, 191, 1)',
+            'rgba(0, 0, 159, 1)',
+            'rgba(0, 0, 127, 1)',
+            'rgba(63, 0, 91, 1)',
+            'rgba(127, 0, 63, 1)',
+            'rgba(191, 0, 31, 1)',
+            'rgba(255, 0, 0, 1)'
+        ]; // original google color
 
         var addHeatmapLayer = function(house_pricing_array) {
             pointArray = new google.maps.MVCArray(house_pricing_array);
