@@ -26,7 +26,7 @@
 	};
 
 	var map, pointarray, heatmap, toggleHeatmap, boundary;
-	var minZoomLevel = 10;
+	var minZoomLevel = 13;
 
     var year_data = {
             twelve: [],
@@ -56,7 +56,9 @@
 
         // Limit the zoom level
         google.maps.event.addListener(map, 'zoom_changed', function() {
-            if (map.getZoom() < minZoomLevel) map.setZoom(minZoomLevel);
+            if (map.getZoom() < minZoomLevel){
+                map.setZoom(minZoomLevel);
+            } 
         });
 
         var drop_marker = function(){
