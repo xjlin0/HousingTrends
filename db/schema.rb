@@ -18,16 +18,16 @@ ActiveRecord::Schema.define(version: 20150423162347) do
 
   create_table "averages", force: :cascade do |t|
     t.integer  "zip"
-    t.integer  "eight",      default: 100
-    t.integer  "nine",       default: 100
-    t.integer  "ten",        default: 100
-    t.integer  "eleven",     default: 100
-    t.integer  "twelve",     default: 100
-    t.integer  "thirteen",   default: 100
-    t.integer  "fourteen",   default: 100
-    t.integer  "fifteen",    default: 100
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.integer  "eight",      default: 0
+    t.integer  "nine",       default: 0
+    t.integer  "ten",        default: 0
+    t.integer  "eleven",     default: 0
+    t.integer  "twelve",     default: 0
+    t.integer  "thirteen",   default: 0
+    t.integer  "fourteen",   default: 0
+    t.integer  "fifteen",    default: 0
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   create_table "heatmaps", force: :cascade do |t|
@@ -57,6 +57,7 @@ ActiveRecord::Schema.define(version: 20150423162347) do
     t.integer  "thirteen",       default: 0
     t.integer  "fourteen",       default: 0
     t.integer  "fifteen",        default: 0
+    t.float    "distance"
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
   end

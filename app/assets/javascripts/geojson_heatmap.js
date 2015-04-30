@@ -71,11 +71,11 @@
                 // document.getElementById('lat').value = event.latLng.lat();
                 // document.getElementById('lng').value = event.latLng.lng();
                 console.dir(marker);
-                console.log(marker.position.D + " " + marker.position.k);
+                console.log(marker.position.lng() + " " + marker.position.lat());
 
                 $.ajax({
                     url:'heatmaps/nearby',
-                    data: {lon:marker.position.D, lat:marker.position.k}
+                    data: {lon:marker.position.lng(), lat:marker.position.lat()}
                 }).done(function(serverData){
                     console.log('success');
                     contentString = "<div>"+serverData.features[0].properties.street_address+"</div>"+"<div>2012 average: <b>"+serverData.features[0].properties.twelve+"%</b></div>"+"<div>2013 average: <b>"+serverData.features[0].properties.thirteen+"%</b></div>"+"<div>2014 average:<b>"+serverData.features[0].properties.fourteen+"%</b></div>";
@@ -234,12 +234,19 @@
         */
 
         var readingGeoJsonFile = function() {
-            var feature_lat, feature_lng;
-            var xhr = new XMLHttpRequest();
-            var url = '/heatmaps/show?ne=' + boundary.getNorthEast().k + boundary.getNorthEast().D;
-            url = url.concat('&sw=' + boundary.getSouthWest().k + ',' + boundary.getSouthWest().D);
+            var feature_lat, feature_lng,
+                xhr = new XMLHttpRequest(),
+                northEast = boundary.getNorthEast().toString(),
+                northEast_array = northEast.substring(1).replace(')','').split(','),
+                northEast_k = northEast_array[0],
+                northEast_D = northEast_array[1],
+                southWest = boundary.getSouthWest().toString(),
+                southWest_array = southWest.substring(1).replace(')','').split(','),
+                southWest_k = southWest_array[0],
+                southWest_D = southWest_array[1];
+            var url = '/heatmaps/show?ne=' + northEast_k + ',' + northEast_D;
+            url = url.concat('&sw=' + southWest_k + ',' + southWest_D);
             xhr.open('GET', url);
-            // debugger
             //  xhr.open('GET', 'https://api.myjson.com/bins/3inn1');
             //  https://api.myjson.com/bins/531t5
             console.log(xhr.responseText)
@@ -252,7 +259,7 @@
                 housingData.features.forEach(function(feature) {
                     feature_lat = feature.geometry.coordinates[1];
                     feature_lng = feature.geometry.coordinates[0];
-                    if (((feature_lat <= boundary.Da.j) && (feature_lat >= boundary.Da.k)) && ((feature_lng <= boundary.va.k) && (feature_lng >= boundary.va.j))) {
+                    // if (((feature_lat <= boundary.Da.j) && (feature_lat >= boundary.Da.k)) && ((feature_lng <= boundary.va.k) && (feature_lng >= boundary.va.j))) {
                         each_data_per_year = feature.properties;
                         year_data.twelve.push({
                             location: new google.maps.LatLng(feature_lat, feature_lng),
@@ -273,7 +280,7 @@
                         //    }
                         //  }
                         // }
-                    }
+                    // }
                 });
 
                 console.log(year_data);
@@ -307,6 +314,11 @@
         // }
 
     }
+
+    // var map_with_heat = function(){
+    //     mapSetup();
+    //     readingGeoJsonFile();
+    // }
 
 	google.maps.event.addDomListener(window, "load", mapSetup);
 })();
