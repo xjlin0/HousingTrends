@@ -37,7 +37,10 @@
         store_markers = [],
         places = [],
         markers = [];
-    var styles = [{"featureType":"administrative","elementType":"all","stylers":[{"visibility":"on"},{"lightness":33}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2e5d4"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#c5dac6"}]},{"featureType":"poi.park","elementType":"labels","stylers":[{"visibility":"on"},{"lightness":20}]},{"featureType":"road","elementType":"all","stylers":[{"lightness":20}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#c5c6c6"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#e4d7c6"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#fbfaf7"}]},{"featureType":"water","elementType":"all","stylers":[{"visibility":"on"},{"color":"#acbcc9"}]}];
+    //var styles = [{"featureType":"administrative","elementType":"all","stylers":[{"visibility":"on"},{"lightness":33}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2e5d4"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#c5dac6"}]},{"featureType":"poi.park","elementType":"labels","stylers":[{"visibility":"on"},{"lightness":20}]},{"featureType":"road","elementType":"all","stylers":[{"lightness":20}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#c5c6c6"}]},{"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#e4d7c6"}]},{"featureType":"road.local","elementType":"geometry","stylers":[{"color":"#fbfaf7"}]},{"featureType":"water","elementType":"all","stylers":[{"visibility":"on"},{"color":"#acbcc9"}]}]; // https://snazzymaps.com/style/1/pale-dawn
+    var styles = [{"featureType":"landscape.natural","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"color":"#e0efef"}]},{"featureType":"poi","elementType":"geometry.fill","stylers":[{"visibility":"on"},{"hue":"#1900ff"},{"color":"#c0e8e8"}]},{"featureType":"road","elementType":"geometry","stylers":[{"lightness":100},{"visibility":"simplified"}]},{"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"visibility":"on"},{"lightness":700}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#7dcdcd"}]}]; // https://snazzymaps.com/style/61/blue-essence
+    //var styles = [{"featureType":"landscape","stylers":[{"saturation":-100},{"lightness":60}]},{"featureType":"road.local","stylers":[{"saturation":-100},{"lightness":40},{"visibility":"on"}]},{"featureType":"transit","stylers":[{"saturation":-100},{"visibility":"simplified"}]},{"featureType":"administrative.province","stylers":[{"visibility":"off"}]},{"featureType":"water","stylers":[{"visibility":"on"},{"lightness":30}]},{"featureType":"road.highway","elementType":"geometry.fill","stylers":[{"color":"#ef8c25"},{"lightness":40}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"visibility":"off"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#b6c54c"},{"lightness":40},{"saturation":-40}]},{}]; //https://snazzymaps.com/style/84/pastel-tones
+
     var styledMap = new google.maps.StyledMapType(styles,
      {name: "Styled Map"});
     var mapSetup = function() {
@@ -72,31 +75,35 @@
             google.maps.event.addListener(marker,'dragend',function(event) {
                 // document.getElementById('lat').value = event.latLng.lat();
                 // document.getElementById('lng').value = event.latLng.lng();
-                console.dir(marker);
-                console.log(marker.position.lng() + " " + marker.position.lat());
-
+                // if (infowindow) {
+                //     infowindow.close();
+                // }
                 $.ajax({
                     url:'heatmaps/nearby',
                     data: {lon:marker.position.lng(), lat:marker.position.lat()}
                 }).done(function(serverData){
-                    console.log('success');
-                    contentString = "<div>"+serverData.features[0].properties.street_address+"</div>"+"<div>2012 average: <b>"+serverData.features[0].properties.twelve+"%</b></div>"+"<div>2013 average: <b>"+serverData.features[0].properties.thirteen+"%</b></div>"+"<div>2014 average:<b>"+serverData.features[0].properties.fourteen+"%</b></div>";
+                    var yearsWords = ["eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen"];  // are there to_words function in JS?
+                    var years = [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015];
+                    var contentString = "<div> The value of "+serverData.features[0].properties.street_address+"</div>";//+"<div>2012 average: <b>"+serverData.features[0].properties.twelve+"%</b></div>"+"<div>2013 average: <b>"+serverData.features[0].properties.thirteen+"%</b></div>"+"<div>2014 average:<b>"+serverData.features[0].properties.fourteen+"%</b></div>";
+                    contentString = contentString.concat("<div>compared to the average of the</div><div>same zip code or itself:</div>")
+                    for (var i = 0 ; i < years.length ; i++){
+                        if (typeof serverData.features[0].properties[yearsWords[i]] === 'undefined'){ console.log('skip');
+                        }else{
+                            contentString = contentString.concat("<div>"+years[i]+" was: <b>"+serverData.features[0].properties[yearsWords[i]]+"%</b></div>")
+                        }
+                    } // end of looping all property values of the clicked object
                     var infowindow = new google.maps.InfoWindow({
                         content: contentString
-                    });
+                    });   // Jack: probably better to use setContent() instead of renew one.
                     infowindow.open(map,marker);
                     console.log('callback complete');
                 }).fail(function(error){
                     console.log('failed');
                 });
-
             });
         }
         drop_marker();
-
-
         map.mapTypes.set('map_style', styledMap);
-
         map.setMapTypeId('map_style');
 
         var input = (document.getElementById('pac-input'));
@@ -179,21 +186,38 @@
         });
 
         var gradient = [
-            'rgba(0, 255, 255, 0)',
-            'rgba(0, 255, 255, 1)',
-            'rgba(0, 191, 255, 1)',
-            'rgba(0, 127, 255, 1)',
-            'rgba(0, 63, 255, 1)',
-            'rgba(0, 0, 255, 1)',
-            'rgba(0, 0, 223, 1)',
-            'rgba(0, 0, 191, 1)',
-            'rgba(0, 0, 159, 1)',
-            'rgba(0, 0, 127, 1)',
-            'rgba(63, 0, 91, 1)',
-            'rgba(127, 0, 63, 1)',
-            'rgba(191, 0, 31, 1)',
-            'rgba(255, 0, 0, 1)'
-        ];
+            'rgba(255, 255, 255, 0)',
+            '#FCEDEF',
+            '#FADBDE',
+            '#F7C9CE',
+            '#F5B8BE',
+            '#F2A6AD',
+            '#F0949D',
+            '#ED828D',
+            '#EB707C',
+            '#E85E6C',
+            '#E64C5C',
+            '#E33B4B',
+            '#E0293B',
+            '#D61F31'
+        ];  // fourteen colors from http://colllor.com/e85d6b
+
+        // var gradient = [
+        //     'rgba(0, 255, 255, 0)',
+        //     'rgba(0, 255, 255, 1)',
+        //     'rgba(0, 191, 255, 1)',
+        //     'rgba(0, 127, 255, 1)',
+        //     'rgba(0, 63, 255, 1)',
+        //     'rgba(0, 0, 255, 1)',
+        //     'rgba(0, 0, 223, 1)',
+        //     'rgba(0, 0, 191, 1)',
+        //     'rgba(0, 0, 159, 1)',
+        //     'rgba(0, 0, 127, 1)',
+        //     'rgba(63, 0, 91, 1)',
+        //     'rgba(127, 0, 63, 1)',
+        //     'rgba(191, 0, 31, 1)',
+        //     'rgba(255, 0, 0, 1)'
+        // ]; // original google color
 
         var addHeatmapLayer = function(house_pricing_array) {
             pointArray = new google.maps.MVCArray(house_pricing_array);
