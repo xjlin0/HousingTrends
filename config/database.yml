@@ -80,6 +80,8 @@ test:
 #
 production:
   <<: *default
+  host: yumiko.cdqli3dfsypd.us-west-1.rds.amazonaws.com
+  port: 5432
   database: HousingTrends_production
-  username: HousingTrends
+  username: jack
   password: <%= ENV['HOUSINGTRENDS_DATABASE_PASSWORD'] %>
