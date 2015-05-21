@@ -14,6 +14,9 @@ class CreateRealestates < ActiveRecord::Migration
       t.integer :fourteen, default: 0
       t.integer :fifteen, default: 0
       t.float :distance
+      t.float :r2
+      t.float :slope
+      t.integer :trend, default: 0
       t.timestamps null: false
     end
       add_index :realestates, :lat
