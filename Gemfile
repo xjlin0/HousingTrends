@@ -1,9 +1,10 @@
 source 'https://rubygems.org'
-
-gem 'to_words'
-gem 'normalic'
-
-gem 'geokit-rails'
+#gem 'to_words' #numbers_and_words gem causing json error
+gem 'statsample'
+gem 'numbers_and_words'  #json error can bypass by requiring active_support/json
+gem 'normalic' #formatting address including unit
+gem 'chronic'  #for reverse ordinalize
+gem 'geokit-rails' #Geokit::Geocoders::GoogleGeocoder.api_key='your key'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.1'
 # Use postgresql as the database for Active Record

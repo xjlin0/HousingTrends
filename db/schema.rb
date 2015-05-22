@@ -58,6 +58,9 @@ ActiveRecord::Schema.define(version: 20150423162347) do
     t.integer  "fourteen",       default: 0
     t.integer  "fifteen",        default: 0
     t.float    "distance"
+    t.float    "r2"
+    t.float    "slope"
+    t.integer  "trend",          default: 0
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
   end
