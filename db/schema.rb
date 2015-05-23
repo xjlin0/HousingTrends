@@ -26,8 +26,11 @@ ActiveRecord::Schema.define(version: 20150423162347) do
     t.integer  "thirteen",   default: 0
     t.integer  "fourteen",   default: 0
     t.integer  "fifteen",    default: 0
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
+    t.float    "r2",         default: 0.0
+    t.float    "slope",      default: 0.0
+    t.float    "trend",      default: 0.0
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   create_table "heatmaps", force: :cascade do |t|
