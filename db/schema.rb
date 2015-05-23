@@ -46,6 +46,7 @@ ActiveRecord::Schema.define(version: 20150423162347) do
 
   create_table "realestates", force: :cascade do |t|
     t.string   "street_address"
+    t.string   "county"
     t.float    "lat"
     t.float    "lng"
     t.integer  "zip"
@@ -58,11 +59,11 @@ ActiveRecord::Schema.define(version: 20150423162347) do
     t.integer  "fourteen",       default: 0
     t.integer  "fifteen",        default: 0
     t.float    "distance"
-    t.float    "r2"
-    t.float    "slope"
-    t.integer  "trend",          default: 0
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.float    "r2",             default: 0.0
+    t.float    "slope",          default: 0.0
+    t.float    "trend",          default: 0.0
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
   end
 
   add_index "realestates", ["lat"], name: "index_realestates_on_lat", using: :btree

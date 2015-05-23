@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 #gem 'to_words' #numbers_and_words gem causing json error
-gem 'statsample'
+gem 'statsample' #for statistical process of housing price
 gem 'numbers_and_words'  #json error can bypass by requiring active_support/json
 gem 'normalic' #formatting address including unit
 gem 'chronic'  #for reverse ordinalize
