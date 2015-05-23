@@ -1,7 +1,7 @@
 #Warning: Database seeding from the scratch will take one entire day !!!!!!
 # require 'geocoder'  #geocoder will depend on Google API limit 100k/day
 # require 'to_words' #in Gemfile (numbers_and_words gem causing json error, can bypass by requiring active_support/json) see https://github.com/kslazarev/numbers_and_words/issues/106
-# WARNING: Normalic gem canNOT handle addresses like "850 Avenue H 94130" or 365V FULTON ST, san francisco, CA
+# WARNING: Normalic gem canNOT handle addresses like "850 Avenue H 94130" or 365V FULTON ST, san francisco, CA, and (if parsed_address.type.nil?) will kill "1 Embarcadero Center, San Francisco, CA 94111"
 #require 'geo_ruby/geojson'    # geo_ruby got support for GeoJSON and ESRI SHP files
 #Geokit::Geocoders::GoogleGeocoder.api_key='your key'
 include Geokit::Geocoders
@@ -57,15 +57,16 @@ f.puts Time.now, " finished loading of postal abbreviations hash\n"
 #### Staring the block of reading open address data for off-line geocoding ####
 
 coor_files = ['db/us-ca-alameda_county6.CSV','db/us-ca-san_francisco0.CSV']
+
+
+
 coor_files.each do |coor_file|
+
   missed_oa = Array.new
   CSV.foreach(coor_file, headers: true ) do |address|
     (missed_oa << address; next) unless address["STREET"]  #some openaddresses records are empty
     p $., address  #for checking progress, printing row number
     (missed_oa << address; next) if address["STREET"] == 'Unknown'
-    #roadname = address["STREET"].upcase.split  #county tax data is upcase
-    #roadname[-1] = abrv[roadname.last] if abrv[roadname.last] #Assessment data addrees are abbriviated street names, so abbreviation conversion is required.
-    #p address_str = address["NUMBER"] +" "+ roadname.join(" ")#+ " "+ address["POSTCODE"].split("-").first
     address_line = address["NUMBER"].to_i.to_s + " " + address["STREET"] #remove "A" from "1249A" Appleton Stree 94129
     address_line = address_line + " "+ address["POSTCODE"][0..4] if address["POSTCODE"]
     parsed_address = Normalic::Address.parse(address_line)
@@ -73,8 +74,6 @@ coor_files.each do |coor_file|
     num_street = Chronic::Numerizer.numerize(parsed_address.street).to_i
     parsed_address.street = num_street.ordinalize if num_street > 0 #make all street name ordinalized number
     parsed_address.street = "M L King Jr" if parsed_address.street.include?("Martin Luther King Junior") # M L KING JR WAY(accessor) ==>  Martin Luther King Junior Way (open geocoder)
-    #address_str = address_str + " "+ address["POSTCODE"][0..4] if address["POSTCODE"] #some open addresses don't have ZIP codes, around row 512000, should curate the empty records around mission blvds later. Some address come with 5+4 zip codes
-    #(missed_oa << address; next) if parsed_address.type.nil? #will kill "1 Embarcadero Center, San Francisco, CA 94111"
     (missed_oa << address; next) if parsed_address.number.nil? #capture unrecognized street numbers
     p current_geocode = Opengeocoder.find_or_create_by(street_address: parsed_address.line1.chomp!('.'))
     current_geocode.update_attributes(lat: address["LAT"].to_f, lng: address["LON"].to_f) if address["LAT"] && address["LON"]
@@ -83,6 +82,7 @@ coor_files.each do |coor_file|
   f.puts Time.now, " finished seeding of #{coor_file}, missed addresss: " + missed_oa.to_s + "\n"
   f.puts " finished seeding of #{coor_file}, the count of missed addresss: " + missed_oa.length.to_s + "\n"
 end
+
 
 ##### End of reading open address data for off-line geocoding ######
 
@@ -137,7 +137,7 @@ csv_files.each do |csv_file|
     p "\n line 131 \n"
     (g_counts += 1; candidates = [ google_geocoder(address) ] ) if candidates.empty?
     (missed_tx << address; p $., address, "address not found"; sleep 3; next) if candidates.empty?
-    create_realestate(candidates, net_value, county)
+    create_realestate(candidates, net_value, county, counter.to_words)
   end
   f.puts Time.now, " finished parsing the file: #{csv_file}. missed record count: #{missed_tx.length}, missed address: " + missed_tx.to_s + "\n"
   f.puts " Totally #{g_counts} of records is geocoded by Google\n"

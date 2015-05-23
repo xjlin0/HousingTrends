@@ -102,6 +102,7 @@ GEM
     numbers_and_words (0.10.4)
       activesupport
       i18n
+    parallel (1.4.1)
     pg (0.18.1)
     prawn (0.8.4)
       prawn-core (>= 0.8.4, < 0.9)
@@ -214,6 +215,7 @@ DEPENDENCIES
   jquery-turbolinks
   normalic
   numbers_and_words
+  parallel
   pg
   puma
   rack-cors
