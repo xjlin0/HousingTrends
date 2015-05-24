@@ -7,7 +7,8 @@
 include Geokit::Geocoders
 def google_geocoder(address)
   puts "\n in google_geocoder method \n"
-  sleep 35  #google map api limit, annonymous minimun should be 0.3
+  sleep 70  #google map api limit, annonymous minimun should be 0.3
+  ActiveRecord::Base.connection.reconnect!
   p location = GoogleGeocoder.geocode(address)  #Google can handle strange address
   parsed_address = Normalic::Address.parse(location.street_address)
   parsed_address.zipcode = location.zip if parsed_address.zipcode.nil?
@@ -39,29 +40,9 @@ def create_realestate(candidates, net_value, county, current_year_in_word)
   p realestate.send( (current_year_in_word+'=').to_sym, updated_value )
   p realestate.save!
 end
-
-#####Start of the seeder program####
-
-f = File.open('db/seeding.log', 'w')
-
-##### Loading postal abbreviations of road names/types ####
-
-abrvs_file, abrv = "db/USPSabbreviations.CSV", Hash.new
-CSV.foreach(abrvs_file, headers: true ) do |road|
-  abrv[ road["Name"] ] = road["Abbreviation"]
-end
-f.puts Time.now, " finished loading of postal abbreviations hash\n"
-
-#### End of loading postal abbreviations of road names/types ######
-
 #### Staring the block of reading open address data for off-line geocoding ####
-
-coor_files = ['db/us-ca-alameda_county6.CSV','db/us-ca-san_francisco0.CSV']
-
-
-
-coor_files.each do |coor_file|
-
+def opengeocoder(coor_file)
+  f = File.open(coor_file+'.log', 'w')
   missed_oa = Array.new
   CSV.foreach(coor_file, headers: true ) do |address|
     (missed_oa << address; next) unless address["STREET"]  #some openaddresses records are empty
@@ -79,79 +60,97 @@ coor_files.each do |coor_file|
     current_geocode.update_attributes(lat: address["LAT"].to_f, lng: address["LON"].to_f) if address["LAT"] && address["LON"]
     current_geocode.update_attributes(zip: parsed_address.zipcode.to_i) if parsed_address.zipcode
   end
-  f.puts Time.now, " finished seeding of #{coor_file}, missed addresss: " + missed_oa.to_s + "\n"
-  f.puts " finished seeding of #{coor_file}, the count of missed addresss: " + missed_oa.length.to_s + "\n"
+  f.write Time.now.utc.to_s + " finished seeding of #{coor_file}, missed addresss: " + missed_oa.to_s + "\n"
+  f.write " finished seeding of #{coor_file}, the count of missed addresss: " + missed_oa.length.to_s + "\n"
 end
-
-
 ##### End of reading open address data for off-line geocoding ######
-
 ##### Staring the block of parsing Alameda tax data with coordinates ####
+def acdata(coderdata='db/us-ca-alameda_county6.CSV')
+  opengeocoder(coderdata); ActiveRecord::Base.connection.reconnect!
+  f = File.open(coderdata+'.re', 'w')
+  counter, missed_tx, g_counts, county = 12, Array.new, Array.new, "Alameda County"  #Alameda's data starting from 2012
+  csv_files = Dir.entries('./db/').select {|f| f.match /csv\z/} #find all tax csv files under db/ entries('./db') case sensitively
+  csv_files.each do |csv_file|
+    #p current_year_in_word = counter.to_words#.constantize  #!!!!!!check this one
+    CSV.foreach('./db/'+csv_file, headers: true ) do |row|
+      next if !row["Total Net Value"]  #why can't use unless?
+      next if !row["Situs Street Number"]
+      next if !row["Situs Street Name"]
+      net_value = row["Total Net Value"].tr("$","").to_i  #this take care of "$" problems if exist
+      next if net_value < 1   #some tax records don't have st# or net value
+      p address = row["Situs Street Number"] + " " + row["Situs Street Name"] + " " + row["Situs Zip"]  #be aware of some record of open address may not have zip!!!!
+      p $., address  # printing out row number for processing monitoring
+      p parsed_address = Normalic::Address.parse(address)
+      candidates = Opengeocoder.where(street_address: parsed_address.line1.chomp!('.'), zip: parsed_address.zipcode)
+      # if candidates.empty?  #Check for ordinal  730 29TH ST (accessor) => Fourth Street (opengeocoder)  sometimes there are "5700 03rd St."
+      candidates =  abrv_ordinal(parsed_address, address) if candidates.empty?
+      p "\n line 107 \n"
+      (g_counts << address; candidates = [ google_geocoder(address) ] ) if candidates.empty?
 
-counter, missed_tx, g_counts, county = 12, Array.new, 0, "Alameda County"  #Alameda's data starting from 2012
-csv_files = Dir.entries('./db/').select {|f| f.match /csv\z/} #find all tax csv files under db/ entries('./db') case sensitively
-csv_files.each do |csv_file|
-  #p current_year_in_word = counter.to_words#.constantize  #!!!!!!check this one
-  CSV.foreach('./db/'+csv_file, headers: true ) do |row|
-    next if !row["Total Net Value"]  #why can't use unless?
-    next if !row["Situs Street Number"]
-    next if !row["Situs Street Name"]
-    net_value = row["Total Net Value"].tr("$","").to_i  #this take care of "$" problems if exist
-    next if net_value < 1   #some tax records don't have st# or net value
-    p address = row["Situs Street Number"] + " " + row["Situs Street Name"] + " " + row["Situs Zip"]  #be aware of some record of open address may not have zip!!!!
-    p $., address  # printing out row number for processing monitoring
-    p parsed_address = Normalic::Address.parse(address)
-    candidates = Opengeocoder.where(street_address: parsed_address.line1.chomp!('.'), zip: parsed_address.zipcode)
-    # if candidates.empty?  #Check for ordinal  730 29TH ST (accessor) => Fourth Street (opengeocoder)  sometimes there are "5700 03rd St."
-    candidates =  abrv_ordinal(parsed_address, address) if candidates.empty?
-    p "\n line 107 \n"
-    (g_counts += 1; candidates = [ google_geocoder(address) ] ) if candidates.empty?
-
-    (missed_tx << address; p $., address, "address not found"; sleep 3; next) if candidates.empty?
-    create_realestate(candidates, net_value, county, counter.to_words)
+      (missed_tx << address; p $., address, "address not found"; sleep 3; next) if candidates.empty?
+      create_realestate(candidates, net_value, county, counter.to_words)
+    end
+    f.write Time.now.utc.to_s + " finished parsing the file: #{csv_file}. missed record count: #{missed_tx.length}, missed address:" + missed_tx.to_s + "\n"
+    f.write " Totally #{g_counts.length} of records is geocoded by Google and here is their address\n" + g_counts.to_s
+    counter += 1
   end
-  f.puts Time.now, " finished parsing the file: #{csv_file}. missed record count: #{missed_tx.length}, missed address:" + missed_tx.to_s + "\n"
-  f.puts " Totally #{g_counts} of records is geocoded by Google\n"
-  counter += 1
 end
-
 ##### End of Alameda County data processing
-
 ##### Block of parsing SF tax data with coordinates ####
-
-counter, missed_tx, g_counts, county = 8, Array.new, 0, "San Francisco County"  #San Francisco's data starting from 2008
-p csv_files = Dir.entries('./db/').select {|f| f.match /sfc\z/} #find all tax csv files under db/ entries('./db') case sensitively
-csv_files.each do |csv_file|
-  p current_year_value = counter.to_words#.constantize  #!!!!!!check this one
-  CSV.foreach('./db/'+csv_file, headers: true ) do |row|
-    next if !row["Situs"]
-    next if !row[" Taxable Value "]
-    next if !row[" Zip "]
-    net_value = row[" Taxable Value "].tr("$","").to_i  #this take care of "$" problems
-    next if net_value < 1   #some tax records don't have st# or net value
-    p address = row["Situs"] + " " + row[" Zip "][0..4]  #be aware of some record of open address may not have zip!!!!
-    p $., address  # printing out row number for processing monitoring
-    p parsed_address = Normalic::Address.parse(address.split("-").last) #for cases of "853 - 859 NORTH POINT ST" #<Normalic::Address:0x007fd52f16b410 @number="853", @direction="N", @street="859", @type=nil, @unit=nil, @city=nil, @state=nil, @zipcode=nil, @intersection=false>
-    p candidates = Opengeocoder.where(street_address: parsed_address.line1.chomp!('.'), zip: parsed_address.zipcode)
-    candidates =  abrv_ordinal(parsed_address, address) if candidates.empty?
-    p "\n line 131 \n"
-    (g_counts += 1; candidates = [ google_geocoder(address) ] ) if candidates.empty?
-    (missed_tx << address; p $., address, "address not found"; sleep 3; next) if candidates.empty?
-    create_realestate(candidates, net_value, county, counter.to_words)
+def sfcdata(coderdata='db/us-ca-san_francisco0.CSV')
+  opengeocoder(coderdata); ActiveRecord::Base.connection.reconnect!
+  f = File.open(coderdata+'.re', 'w')
+  counter, missed_tx, g_counts, county = 8, Array.new, Array.new, "San Francisco County"  #San Francisco's data starting from 2008
+  p csv_files = Dir.entries('./db/').select {|f| f.match /sfc\z/} #find all tax csv files under db/ entries('./db') case sensitively
+  csv_files.each do |csv_file|
+    p current_year_value = counter.to_words#.constantize  #!!!!!!check this one
+    CSV.foreach('./db/'+csv_file, headers: true ) do |row|
+      next if !row["Situs"]
+      next if !row[" Taxable Value "]
+      next if !row[" Zip "]
+      net_value = row[" Taxable Value "].tr("$","").to_i  #this take care of "$" problems
+      next if net_value < 1   #some tax records don't have st# or net value
+      p address = row["Situs"] + " " + row[" Zip "][0..4]  #be aware of some record of open address may not have zip!!!!
+      p $., address  # printing out row number for processing monitoring
+      p parsed_address = Normalic::Address.parse(address.split("-").last) #for cases of "853 - 859 NORTH POINT ST" #<Normalic::Address:0x007fd52f16b410 @number="853", @direction="N", @street="859", @type=nil, @unit=nil, @city=nil, @state=nil, @zipcode=nil, @intersection=false>
+      p candidates = Opengeocoder.where(street_address: parsed_address.line1.chomp!('.'), zip: parsed_address.zipcode)
+      candidates =  abrv_ordinal(parsed_address, address) if candidates.empty?
+      p "\n line 131 \n"
+      (g_counts << address; candidates = [ google_geocoder(address) ] ) if candidates.empty?
+      (missed_tx << address; p $., address, "address not found"; sleep 3; next) if candidates.empty?
+      create_realestate(candidates, net_value, county, counter.to_words)
+    end
+    f.write Time.now.utc.to_s + " finished parsing the file: #{csv_file}. missed record count: #{missed_tx.length}, missed address: " + missed_tx.to_s + "\n"
+    f.write " Totally #{g_counts.length} of records is geocoded by Google and here is their address\n" + g_counts.to_s
+    counter += 1
   end
-  f.puts Time.now, " finished parsing the file: #{csv_file}. missed record count: #{missed_tx.length}, missed address: " + missed_tx.to_s + "\n"
-  f.puts " Totally #{g_counts} of records is geocoded by Google\n"
-  counter += 1
 end
-
 ##### End of parsing SF tax data with coordinates  ####
 
+#####Start of the seeder program####
+
+##### Loading postal abbreviations of road names/types ####
+abrvs_file, abrv = "db/USPSabbreviations.CSV", Hash.new
+CSV.foreach(abrvs_file, headers: true ) do |road|
+  abrv[ road["Name"] ] = road["Abbreviation"]
+end
+File.open('db/abrvs_file.log', 'w').write Time.now.utc.to_s + " finished loading of postal abbreviations hash\n"
+#### End of loading postal abbreviations of road names/types ######
+#### Start parallel data processing of both counties (opengeocoder and tax)
+geocoders = [:acdata, :sfcdata]
+
+Parallel.map(geocoders) do |one_job|
+  ActiveRecord::Base.connection.reconnect!
+  Object.send(one_job)
+end
+
+puts "\n\nopengeocoders and realestates in both counties finished\n\n"
+#### End paralleldata processing of both counties (opengeocoder and tax)
 ##### Beginning of linear regression data
 
 Realestate.find_each do |realestate|
   price_hash = Hash.new #Alameda and SF county got different covarage in years
-  #years = Realestate.county == "Alameda County" ? (12..14).to_a : (8..13).to_a
-  years = (12..14).to_a
+  years = Realestate.county == "Alameda County" ? (12..14).to_a : (8..13).to_a
   years.each{ |yr| price_hash[ yr ] = realestate.send( yr.to_words ) if realestate.send( yr.to_words )  > 0 }
   if price_hash.length > 1
     time, price = price_hash.to_a.transpose.first.to_scale, price_hash.to_a.transpose.last.to_scale
@@ -159,7 +158,7 @@ Realestate.find_each do |realestate|
     p realestate.update(slope: regression_line.b, r2: regression_line.r2)
   end
 end
-f.puts Time.now, " finished linear regression\n"
+File.open('db/realestates_regression.log', 'w').write Time.now.utc.to_s + " finished linear regression\n"
 
 ##### end of linear regression data
 
@@ -171,7 +170,7 @@ Realestate.find_each do |realestate|
   p score = up.length / local_realestates.length.to_f * 100
   realestate.update(trend: score)
 end
-f.puts Time.now, " finished trend score calculation\n"
+f.write Time.now.utc.to_s + " finished trend score calculation\n"
 
 ##### end of trend score calculation
 
@@ -189,7 +188,7 @@ county_zips.each do |file|
     current_zip_area.save!
   end
 end
-f.puts Time.now, " finished avarage calculation\n"
+File.open('db/realestates_average.log', 'w').write Time.now.utc.to_s + " finished avarage calculation\n"
 
 ##### End of the Avarage calculation
-f.close
+#f.close
