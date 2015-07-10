@@ -61,7 +61,7 @@
         google.maps.event.addListener(map, 'zoom_changed', function() {
             if (map.getZoom() < minZoomLevel){
                 map.setZoom(minZoomLevel);
-            } 
+            }
         });
 
         var drop_marker = function(){
@@ -179,7 +179,7 @@
 
             map.fitBounds(boundary);
         });
-
+debugger
         google.maps.event.addListener(map, 'bounds_changed', function() {
             boundary = map.getBounds();
             searchBox.setBounds(boundary);

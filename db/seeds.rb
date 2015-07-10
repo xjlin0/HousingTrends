@@ -3,26 +3,44 @@
 # require 'to_words' #in Gemfile (numbers_and_words gem causing json error, can bypass by requiring active_support/json) see https://github.com/kslazarev/numbers_and_words/issues/106
 # WARNING: Normalic gem canNOT handle addresses like "850 Avenue H 94130" or 365V FULTON ST, san francisco, CA, and (if parsed_address.type.nil?) will kill "1 Embarcadero Center, San Francisco, CA 94111"
 #require 'geo_ruby/geojson'    # geo_ruby got support for GeoJSON and ESRI SHP files
-Geokit::Geocoders::GoogleGeocoder.api_key=ENV['JEREMY_API_KEY']
 include Geokit::Geocoders
+#Geokit::Geocoders::GoogleGeocoder.api_key=ENV['JEREMY_API_KEY']
 def google_geocoder(address)
-  puts "\n in google_geocoder method line 9\n"
+  puts "\n in google_geocoder method line 9 trying" + address
+  times = 0
   sleep (1..10).to_a.map{|o|o*0.9}.sample  #google map api limit 100k/day, minimun should be more than 0.2*number of process ~1.7
   ActiveRecord::Base.connection.reconnect!
-  p location = GoogleGeocoder.geocode(address)  #Google can handle strange address
-  (sleep rand(1..30); location = GoogleGeocoder.geocode(address)) unless location.success
-  return [] unless location.success
-  parsed_address = Normalic::Address.parse(location.street_address)
-  parsed_address.zipcode = location.zip if parsed_address.zipcode.nil?
-  p current_geocode = Opengeocoder.find_or_create_by(street_address: parsed_address.line1.chomp!('.'))
-  current_geocode.update(lat: location.lat, lng: location.lng) if location.lat && location.lng
-  current_geocode.update(zip: parsed_address.zipcode.to_i) if parsed_address.zipcode
-  return current_geocode
+  location = GoogleGeocoder.new
+  begin
+    p location = GoogleGeocoder.geocode(address)
+
+
+    # p location = GoogleGeocoder.geocode(address)  #Google can handle strange address
+    # (sleep rand(1..30); location = GoogleGeocoder.geocode(address)) unless location.success
+    # return [] unless location.success
+    parsed_address = Normalic::Address.parse(location.street_address)
+    parsed_address.zipcode = location.zip if parsed_address.zipcode.nil?
+    p current_geocode = Opengeocoder.find_or_create_by(street_address: parsed_address.line1.chomp!('.'))
+    current_geocode.update(lat: location.lat, lng: location.lng) if location.lat && location.lng
+    current_geocode.update(zip: parsed_address.zipcode.to_i) if parsed_address.zipcode
+    return [current_geocode]
+
+  rescue Geokit::Geocoders::GeocodeError
+    puts "rescuing line 17: ", $!.message
+    sleep (30..100).to_a.map{|o|o*0.1}.sample
+    p times += 1
+    if times < 2
+      retry
+    else
+      return []
+    end
+  end
+
 end
 
 def abrv_ordinal(parsed_address, original_address)
   #Check for ordinal  730 29TH ST (accessor) => Fourth Street (opengeocoder) sometimes there are "5700 03rd St."     # "431 M L KING JR WAY 94607" and street name in numbers, "5378 TASSAJARA RD 94588" can be improved by to_words  gem
-  puts "\n in abrv_ordinal method line 23 \n"
+  puts "\n in abrv_ordinal method line 40 \n"
   num_street = Chronic::Numerizer.numerize(parsed_address.street).to_i
   parsed_address.street = num_street.ordinalize if num_street > 0
   parsed_address.number = original_address.split("-").last.split.first.to_i if parsed_address.number.nil? && original_address.include?("-") # for cases of "365V FULTON ST, san francisco, CA 94123"
@@ -34,7 +52,7 @@ end
 
 def create_realestate(candidates, net_value, county, current_year_in_word)
   candidate = candidates.first  #Let's assume there's only one match
-  puts "\nin create_realestate method line 35\n"
+  puts "\nin create_realestate method line 52\n"
   p realestate = Realestate.find_or_create_by(street_address: candidate.street_address)
   realestate.county = county
   updated_value = realestate.send(current_year_in_word) + net_value #some bldg have many units
@@ -97,26 +115,34 @@ def acdata_worker(address_in_array_of_hashes, counter)
   missed_tx, g_counts, county = Array.new, Array.new, "Alameda County"  #Alameda's data starting from 2012
   address_in_array_of_hashes.each do |row|
     #f = File.open(coderdata+'.re', 'w')
+    begin
+      #csv_files = Dir.entries('./db/').select {|f| f.match /csv\z/} #find all tax csv files under db/ entries('./db') case sensitively
+      #csv_files.each do |csv_file|
+      #p current_year_in_word = counter.to_words#.constantize  #!!!!!!check this one
+      next if row[:total_net_value].length * row[:situs_street_number].length * row[:situs_street_name].length == 0
+      # next if !row[:total_net_value]  #why can't use unless? because empty string !!"" #=>true
+      # next if !row[:situs_street_number]
+      # next if !row[:situs_street_name]
+      net_value = row[:total_net_value].tr("$","").to_i  #this take care of "$" problems if exist
+      next if net_value < 1   #some tax records don't have st# or net value
+      p address = row[:situs_street_number] + " " + row[:situs_street_name] + " "
+      address = address + row[:situs_zip][0..4] if row[:situs_zip].length > 4 #be aware of some record of open address may not have zip!!!!
+      p parsed_address = Normalic::Address.parse(address)
+      candidates = Opengeocoder.where(street_address: parsed_address.line1.chomp!('.'), zip: parsed_address.zipcode)
+      # if candidates.empty?  #Check for ordinal  730 29TH ST (accessor) => Fourth Street (opengeocoder)  sometimes there are "5700 03rd St."
+      candidates =  abrv_ordinal(parsed_address, address) if candidates.empty?
 
-    #csv_files = Dir.entries('./db/').select {|f| f.match /csv\z/} #find all tax csv files under db/ entries('./db') case sensitively
-    #csv_files.each do |csv_file|
-    #p current_year_in_word = counter.to_words#.constantize  #!!!!!!check this one
+      (g_counts << address; candidates = google_geocoder(address) ) if candidates.empty?
+      #puts "AC worker line 132"
+      (missed_tx << address; p address, "address not found"; next) if candidates.empty?
+      puts "AC worker line 135"
+      create_realestate(candidates, net_value, county, counter.to_words)
 
-    next if !row[:total_net_value]  #why can't use unless? because empty string !!"" #=>true
-    next if !row[:situs_street_number]
-    next if !row[:situs_street_name]
-    net_value = row[:total_net_value].to_s.tr("$","").to_i  #this take care of "$" problems if exist
-    next if net_value < 1   #some tax records don't have st# or net value
-    p address = row[:situs_street_number].to_s + " " + row[:situs_street_name].to_s + " " + row[:situs_zip].to_s  #be aware of some record of open address may not have zip!!!!
-    p parsed_address = Normalic::Address.parse(address)
-    candidates = Opengeocoder.where(street_address: parsed_address.line1.chomp!('.'), zip: parsed_address.zipcode)
-    # if candidates.empty?  #Check for ordinal  730 29TH ST (accessor) => Fourth Street (opengeocoder)  sometimes there are "5700 03rd St."
-    candidates =  abrv_ordinal(parsed_address, address) if candidates.empty?
 
-    (g_counts << address; candidates = [ google_geocoder(address) ] ) if candidates.empty?
+    rescue Exception => e
+      p e.backtrace
+    end
 
-    (missed_tx << address; p address, "address not found"; next) if candidates.empty?
-    create_realestate(candidates, net_value, county, counter.to_words)
   end
   return missed_tx, g_counts
 end
@@ -136,18 +162,19 @@ def sfcdata_worker(address_in_array_of_hashes, counter)
     # csv_files.each do |csv_file|
     #   p current_year_value = counter.to_words#.constantize  #!!!!!!check this one
     #   CSV.foreach('./db/'+csv_file, headers: true ) do |row|
-    next if !row[:situs]
-    next if !row[:taxable_value]
-    next if !row[:zip]
-    net_value = row[:taxable_value].to_s.tr("$","").to_i  #this take care of "$" problems
+    next if row[:situs].length * row[:taxable_value].length == 0
+    # next if !row[:taxable_value]
+    # next if !row[:zip]
+    net_value = row[:taxable_value].tr("$","").to_i  #this take care of "$" problems
     next if net_value < 1   #some tax records don't have st# or net value
-    p address = row[:situs].to_s + " " + row[:zip].to_s[0..4]  #be aware of some record of open address may not have zip!!!!
+    p address = row[:situs] + " "
+    address = address + row[:zip][0..4] if row[:zip].length > 4 #be aware of some record of open address may not have zip!!!!
     #p $., address  # printing out row number for processing monitoring
     p parsed_address = Normalic::Address.parse(address.split("-").last) #for cases of "853 - 859 NORTH POINT ST" #<Normalic::Address:0x007fd52f16b410 @number="853", @direction="N", @street="859", @type=nil, @unit=nil, @city=nil, @state=nil, @zipcode=nil, @intersection=false>
     p candidates = Opengeocoder.where(street_address: parsed_address.line1.chomp!('.'), zip: parsed_address.zipcode)
     candidates =  abrv_ordinal(parsed_address, address) if candidates.empty?
-    puts "\n line 131 \n"
-    (g_counts << address; candidates = [ google_geocoder(address) ] ) if candidates.empty?
+    puts "\n line 167 \n"
+    (g_counts << address; candidates = google_geocoder(address) ) if candidates.empty?
     (missed_tx << address; p address, "address not found"; next) if candidates.empty?
     create_realestate(candidates, net_value, county, counter.to_words)
   end
@@ -170,15 +197,15 @@ File.open('db/abrvs_file.log', 'w').write Time.now.utc.to_s + " finished loading
 #### End of loading postal abbreviations of road names/types ######
 #### Start parallel data processing of both counties (opengeocoder and tax)
 #052515
-options = {chunk_size: 1000, col_sep: ',', row_sep: "\n", verbose: true}
-coor_files, missed_ot = ['db/us-ca-alameda_county6.CSV','db/us-ca-san_francisco0.CSV'], Array.new
-coor_files.each do |coor_file|
-  csv = SmarterCSV.process(coor_file, options)
-  Parallel.map(csv) do |chunk|
-    missed_ot += opengeocoder_worker(chunk)
-  end
-end
-File.open('db/geocoder_generator.log', 'w').write Time.now.utc.to_s + " Finished generating of opengeocoder\n" +  " , in both counties. missed geocoader count: #{missed_ot.length}, and here are the address:\n\n" + missed_ot.to_s
+options = {chunk_size: 1000, col_sep: ',', row_sep: "\n", verbose: true, remove_empty_values: false, remove_zero_values: false, convert_values_to_numeric: false}
+# coor_files, missed_ot = ['db/us-ca-alameda_county6.CSV','db/us-ca-san_francisco0.CSV'], Array.new
+# coor_files.each do |coor_file|
+#   csv = SmarterCSV.process(coor_file, options)
+#   Parallel.map(csv) do |chunk|
+#     missed_ot += opengeocoder_worker(chunk)
+#   end
+# end
+# File.open('db/geocoder_generator.log', 'w').write Time.now.utc.to_s + " Finished generating of opengeocoder\n" +  " , in both counties. missed geocoader count: #{missed_ot.length}, and here are the address:\n\n" + missed_ot.to_s
 
 #AC #052515
 csv_files, missed_at, missed_gt, counter = Dir.entries('./db/').select {|f| f.match /csv\z/}, Array.new, Array.new, 12 #find all tax csv files under db/ entries('./db') case sensitively
