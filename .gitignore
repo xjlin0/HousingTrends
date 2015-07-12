@@ -12,16 +12,12 @@
 !/log/.keep
 /tmp
 .env
+.ruby-version
 
-.Gemfile.lock
-.csv
-.CSV
-/db/*.csv
-/db/*.CSV
-/db/*.sfc
-
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+./.csv
+./.CSV
+db/*.csv
+db/*.CSV
+db/*.sfc
+db/*.log
+db/*.gz

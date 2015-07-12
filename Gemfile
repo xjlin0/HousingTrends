@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'to_words'
-gem 'normalic'
+#gem 'normalic'
 
 gem 'geokit-rails'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
