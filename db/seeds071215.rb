@@ -1,14 +1,14 @@
-# #Warning: Database seeding from the scratch will take one entire day !!!!!!
-# # require 'geocoder'  #geocoder will depend on Google API limit 100k/day
-# # require 'to_words' #in Gemfile (numbers_and_words gem causing json error, can bypass by requiring active_support/json) see https://github.com/kslazarev/numbers_and_words/issues/106
-# # WARNING: Normalic gem canNOT handle addresses like "850 Avenue H 94130" or 365V FULTON ST, san francisco, CA, and (if parsed_address.type.nil?) will kill "1 Embarcadero Center, San Francisco, CA 94111"
-# #require 'geo_ruby/geojson'    # geo_ruby got support for GeoJSON and ESRI SHP files
+#Warning: Database seeding from the scratch will take one entire day !!!!!!
+# require 'geocoder'  #geocoder will depend on Google API limit 100k/day
+# require 'to_words' #in Gemfile (numbers_and_words gem causing json error, can bypass by requiring active_support/json) see https://github.com/kslazarev/numbers_and_words/issues/106
+# WARNING: Normalic gem canNOT handle addresses like "850 Avenue H 94130" or 365V FULTON ST, san francisco, CA, and (if parsed_address.type.nil?) will kill "1 Embarcadero Center, San Francisco, CA 94111"
+#require 'geo_ruby/geojson'    # geo_ruby got support for GeoJSON and ESRI SHP files
 include Geokit::Geocoders
 #Geokit::Geocoders::GoogleGeocoder.api_key=ENV['JEREMY_API_KEY']
 def google_geocoder(address)
   puts "\n in google_geocoder method line 9 trying" + address
   times = 0
-  sleep (1..10).to_a.map{|o|o*0.9}.sample  #google map geocoder limit 2500/day even with a key !!!
+  sleep (1..10).to_a.map{|o|o*0.9}.sample  #google map api limit 100k/day, minimun should be more than 0.2*number of process ~1.7
   ActiveRecord::Base.connection.reconnect!
   location = GoogleGeocoder.new
   begin
@@ -85,32 +85,31 @@ def opengeocoder_worker(address_in_array_of_hashes)
   return missed_oa
 end
 
-# #### Staring the block of reading open address data for off-line geocoding ####
-# # def opengeocoder(coor_file)
-# #   f = File.open(coor_file+'.log', 'w')
-# #   missed_oa = Array.new
-# #   CSV.foreach(coor_file, headers: true ) do |address|
-# #     (missed_oa << address; next) unless address["STREET"]  #some openaddresses records are empty
-# #     p $., address  #for checking progress, printing row number
-# #     (missed_oa << address; next) if address["STREET"] == 'Unknown'
-# #     address_line = address["NUMBER"].to_i.to_s + " " + address["STREET"] #remove "A" from "1249A" Appleton Stree 94129
-# #     address_line = address_line + " "+ address["POSTCODE"][0..4] if address["POSTCODE"]
-# #     parsed_address = Normalic::Address.parse(address_line)
-# #     parsed_address.street = address["STREET"].split.last if parsed_address.street.nil? #for cases of "850 Avenue H 94130" or 40 Vía Ferlinghetti San Francisco, CA 94133
-# #     num_street = Chronic::Numerizer.numerize(parsed_address.street).to_i
-# #     parsed_address.street = num_street.ordinalize if num_street > 0 #make all street name ordinalized number
-# #     parsed_address.street = "M L King Jr" if parsed_address.street.include?("Martin Luther King Junior") # M L KING JR WAY(accessor) ==>  Martin Luther King Junior Way (open geocoder)
-# #     (missed_oa << address; next) if parsed_address.number.nil? #capture unrecognized street numbers
-# #     p current_geocode = Opengeocoder.find_or_create_by(street_address: parsed_address.line1.chomp!('.'))
-# #     current_geocode.update_attributes(lat: address["LAT"].to_f, lng: address["LON"].to_f) if address["LAT"] && address["LON"]
-# #     current_geocode.update_attributes(zip: parsed_address.zipcode.to_i) if parsed_address.zipcode
-# #   end
-# #   f.write Time.now.utc.to_s + " finished seeding of #{coor_file}, missed addresss: " + missed_oa.to_s + "\n"
-# #   f.write " finished seeding of #{coor_file}, the count of missed addresss: " + missed_oa.length.to_s + "\n"
-# # end
-# ##### End of reading open address data for off-line geocoding ######
-
-# ##### Staring the block of parsing Alameda tax data with coordinates ####
+#### Staring the block of reading open address data for off-line geocoding ####
+# def opengeocoder(coor_file)
+#   f = File.open(coor_file+'.log', 'w')
+#   missed_oa = Array.new
+#   CSV.foreach(coor_file, headers: true ) do |address|
+#     (missed_oa << address; next) unless address["STREET"]  #some openaddresses records are empty
+#     p $., address  #for checking progress, printing row number
+#     (missed_oa << address; next) if address["STREET"] == 'Unknown'
+#     address_line = address["NUMBER"].to_i.to_s + " " + address["STREET"] #remove "A" from "1249A" Appleton Stree 94129
+#     address_line = address_line + " "+ address["POSTCODE"][0..4] if address["POSTCODE"]
+#     parsed_address = Normalic::Address.parse(address_line)
+#     parsed_address.street = address["STREET"].split.last if parsed_address.street.nil? #for cases of "850 Avenue H 94130" or 40 Vía Ferlinghetti San Francisco, CA 94133
+#     num_street = Chronic::Numerizer.numerize(parsed_address.street).to_i
+#     parsed_address.street = num_street.ordinalize if num_street > 0 #make all street name ordinalized number
+#     parsed_address.street = "M L King Jr" if parsed_address.street.include?("Martin Luther King Junior") # M L KING JR WAY(accessor) ==>  Martin Luther King Junior Way (open geocoder)
+#     (missed_oa << address; next) if parsed_address.number.nil? #capture unrecognized street numbers
+#     p current_geocode = Opengeocoder.find_or_create_by(street_address: parsed_address.line1.chomp!('.'))
+#     current_geocode.update_attributes(lat: address["LAT"].to_f, lng: address["LON"].to_f) if address["LAT"] && address["LON"]
+#     current_geocode.update_attributes(zip: parsed_address.zipcode.to_i) if parsed_address.zipcode
+#   end
+#   f.write Time.now.utc.to_s + " finished seeding of #{coor_file}, missed addresss: " + missed_oa.to_s + "\n"
+#   f.write " finished seeding of #{coor_file}, the count of missed addresss: " + missed_oa.length.to_s + "\n"
+# end
+##### End of reading open address data for off-line geocoding ######
+##### Staring the block of parsing Alameda tax data with coordinates ####
 def acdata_worker(address_in_array_of_hashes, counter)
   ActiveRecord::Base.connection.reconnect!
   missed_tx, g_counts, county = Array.new, Array.new, "Alameda County"  #Alameda's data starting from 2012
@@ -136,7 +135,7 @@ def acdata_worker(address_in_array_of_hashes, counter)
       (g_counts << address; candidates = google_geocoder(address) ) if candidates.empty?
       #puts "AC worker line 132"
       (missed_tx << address; p address, "address not found"; next) if candidates.empty?
-      #puts "AC worker line 135"
+      puts "AC worker line 135"
       create_realestate(candidates, net_value, county, counter.to_words)
 
 
@@ -151,8 +150,8 @@ end
 # f.write " Totally #{g_counts.length} of records is geocoded by Google and here is their address\n" + g_counts.to_s
 # counter += 1
 
-# ##### End of Alameda County data processing
-# ##### Block of parsing SF tax data with coordinates ####
+##### End of Alameda County data processing
+##### Block of parsing SF tax data with coordinates ####
 
 def sfcdata_worker(address_in_array_of_hashes, counter)
   ActiveRecord::Base.connection.reconnect!
@@ -186,17 +185,16 @@ end
 # counter += 1
 ##### End of parsing SF tax data with coordinates  ####
 
-# #####Start of the seeder program####
+#####Start of the seeder program####
 
-# ##### Loading postal abbreviations of road names/types ####
-# abrvs_file, abrv = "db/USPSabbreviations.CSV", Hash.new
-# puts "Loading postal abbreviations, wait......"
-# CSV.foreach(abrvs_file, headers: true ) do |road|
-#   abrv[ road["Name"] ] = road["Abbreviation"]
-# end
-# File.open('db/abrvs_file.log', 'w').write Time.now.utc.to_s + " finished loading of postal abbreviations hash\n"
-# #### End of loading postal abbreviations of road names/types ######
-
+##### Loading postal abbreviations of road names/types ####
+abrvs_file, abrv = "db/USPSabbreviations.CSV", Hash.new
+puts "Loading postal abbreviations, wait......"
+CSV.foreach(abrvs_file, headers: true ) do |road|
+  abrv[ road["Name"] ] = road["Abbreviation"]
+end
+File.open('db/abrvs_file.log', 'w').write Time.now.utc.to_s + " finished loading of postal abbreviations hash\n"
+#### End of loading postal abbreviations of road names/types ######
 #### Start parallel data processing of both counties (opengeocoder and tax)
 #052515
 options = {chunk_size: 1000, col_sep: ',', row_sep: "\n", verbose: true, remove_empty_values: false, remove_zero_values: false, convert_values_to_numeric: false}
@@ -209,7 +207,7 @@ options = {chunk_size: 1000, col_sep: ',', row_sep: "\n", verbose: true, remove_
 # end
 # File.open('db/geocoder_generator.log', 'w').write Time.now.utc.to_s + " Finished generating of opengeocoder\n" +  " , in both counties. missed geocoader count: #{missed_ot.length}, and here are the address:\n\n" + missed_ot.to_s
 
-# #AC #052515
+#AC #052515
 csv_files, missed_at, missed_gt, counter = Dir.entries('./db/').select {|f| f.match /csv\z/}, Array.new, Array.new, 12 #find all tax csv files under db/ entries('./db') case sensitively
 csv_files.each do |csv_file|
   puts "Starting slicing csv files #{csv_file}, hold on......"
@@ -223,7 +221,7 @@ csv_files.each do |csv_file|
 end
 File.open('db/alameda_county.log', 'w').write Time.now.utc.to_s + " Finished generating of realestates in Alameda County\n" +  " Missed address count: #{missed_at.length}, and here are the address:\n\n" + missed_at.to_s + "Google helped #{missed_gt.length}, and here are the address:\n" + missed_gt.to_s
 
-# #SFC 052515
+#SFC 052515
 
 csv_files, missed_at, missed_gt, counter = Dir.entries('./db/').select {|f| f.match /sfc\z/}, Array.new, Array.new, 8
 csv_files.each do |csv_file|
@@ -238,35 +236,12 @@ csv_files.each do |csv_file|
 end
 File.open('db/sf_county.log', 'w').write Time.now.utc.to_s + " Finished generating of realestates in SF County\n" +  " Missed address count: #{missed_at.length}, and here are the address:\n\n" + missed_at.to_s + "Google helped #{missed_gt.length}, and here are the address:\n" + missed_gt.to_s
 
-# #### End paralleldata processing of both counties (opengeocoder and tax)
-
-##### Beginning of manually assign county, this block shouldn't be required if Realestate records were generated by 2nd Google geocoder.
-# 071915
-
-county_zips = ['db/ala.zips', 'db/sfc.zips']
-sfc_zips, ac_zips = Array.new, Array.new
-county_zips.each do |file|
-  if file == 'db/ala.zips'
-    ac_zips = CSV.read(file).inject([]){|a,c|a << c.first.to_i}
-  else
-    sfc_zips = CSV.read(file).inject([]){|a,c|a << c.first.to_i}
-  end
-end
-
-Realestate.find_each do |realestate|
-  if ac_zips.include?(realestate.zip)
-    p realestate.update(county: "Alameda County")
-  else
-    p realestate.update(county: "San Francisco County")
-  end
-end
-
+#### End paralleldata processing of both counties (opengeocoder and tax)
 ##### Beginning of linear regression data
 #052515
-
 Realestate.find_each do |realestate|
   price_hash = Hash.new #Alameda and SF county got different covarage in years
-  years = realestate.county == "Alameda County" ? (12..14).to_a : (8..13).to_a
+  years = Realestate.county == "Alameda County" ? (12..14).to_a : (8..13).to_a
   years.each{ |yr| price_hash[ yr ] = realestate.send( yr.to_words ) if realestate.send( yr.to_words )  > 0 }
   if price_hash.length > 1
     time, price = price_hash.to_a.transpose.first.to_scale, price_hash.to_a.transpose.last.to_scale
@@ -276,44 +251,23 @@ Realestate.find_each do |realestate|
 end
 File.open('db/realestates_regression.log', 'w').write Time.now.utc.to_s + " finished linear regression\n"
 
-#### end of linear regression data
+##### end of linear regression data
 
-#### Beginning of trend score calculation
-
-#July 20 2015
-def trend_calculation_worker(realestates_in_array, slope_std=750, r2_std=0.8, distance_std=0.1)
-  ActiveRecord::Base.connection.reconnect!
-
-  realestates_in_array.each do |realestate|
-    next unless realestate.trend.zero?
-    local_realestates = Realestate.within(distance_std, :origin => realestate)
-    up = local_realestates.select{ |re| re.slope > slope_std && re.r2 > r2_std } #cannot use count, keep_if or delete_if methods in geokit-rails
-    p score = up.length / local_realestates.length.to_f * 100
-    realestate.update(trend: score)
-  end
+##### Beginning of trend score calculation
+#052515
+slope_std, r2_std, distance_std = 750, 0.8, 0.1
+Realestate.find_each do |realestate|
+  local_realestates = Realestate.within(distance_std, :origin => realestate)
+  up = local_realestates.select{ |re| re.slope > slope_std && re.r2 > r2_std } #cannot use count, keep_if or delete_if methods in geokit-rails
+  p score = up.length / local_realestates.length.to_f * 100
+  realestate.update(trend: score)
 end
-
-Parallel.each(Realestate.find_in_batches) do |realestates|
-  trend_calculation_worker(realestates)
-end
-Realestate.connection.reconnect!
-#f.write Time.now.utc.to_s + " finished trend score calculation\n"
-
-##052515 replaced with parallel version on July 20
-# slope_std, r2_std, distance_std = 750, 0.8, 0.1
-# Realestate.find_each do |realestate|
-#   local_realestates = Realestate.within(distance_std, :origin => realestate)
-#   up = local_realestates.select{ |re| re.slope > slope_std && re.r2 > r2_std } #cannot use count, keep_if or delete_if methods in geokit-rails
-#   p score = up.length / local_realestates.length.to_f * 100
-#   realestate.update(trend: score)
-# end
-
+f.write Time.now.utc.to_s + " finished trend score calculation\n"
 
 ##### end of trend score calculation
 
 ##### Beginning of the Avarage calculation
 #052515
-
 county_zips = ['db/ala.zips', 'db/sfc.zips']
 county_zips.each do |file|
   CSV.read(file).inject([]){|a,c|a << c.first.to_i}.each do |zip_code|

@@ -46,6 +46,7 @@ class HeatmapsController < ApplicationController
 		realestates_hash = { type: "FeatureCollection", features: Array.new }
 		local_realestates.each do |realestate|
       value_year, years = Hash.new, (8..15).map(&:to_words)  #2008 ~ 2015 data
+      value_year[:trend_score] = realestate.trend unless realestate.trend.zero?
       years.each{|yr| value_year[yr.to_sym] = realestate.send(yr) if realestate.send(yr) > 0 }
       realestates_hash[:features] << { type: "Feature", geometry: { type: "Point", coordinates: [realestate.lng, realestate.lat] }, properties: value_year }
     end
@@ -62,17 +63,23 @@ class HeatmapsController < ApplicationController
 		local_realestates.each do |realestate|
       value_year, first_value, years = {street_address: realestate.street_address}, 0, (8..15).map(&:to_words)  #2008 ~ 2015 data
       # years.each{|yr| value_year[yr.to_sym] = realestate.send(yr) if realestate.send(yr) > 0 }
+      value_year[:trend] = realestate.trend.round(0) unless realestate.trend.zero?
       years.each do |yr|
         next if realestate.send(yr) == 0  #next year if there's no current year data
-        first_value = realestate.send(yr) if first_value == 0  #this set its initial value and will be used as 100% if no zip avarage data
+
         #p "line 68", realestate.send(yr), local_average.send(yr)
-        if local_average && local_average.send(yr) > 0
-          #p "line 70"
-          value_year[yr.to_sym] = (realestate.send(yr)/local_average.send(yr).to_f*100).round(2)
-        else
-          #p "line 73"
-          value_year[yr.to_sym] = (realestate.send(yr)/first_value.to_f*100).round(2)
-        end
+
+        value_year[yr.to_sym] = (realestate.send(yr)) #this line is demo version July 20 15 showing real price
+
+        #The following sector was deployed version June 2015, showing only percentage
+        #first_value = realestate.send(yr) if first_value == 0  #this set its initial value and will be used as 100% if no zip avarage data
+        # if local_average && local_average.send(yr) > 0
+        #   #p "line 70"
+        #   value_year[yr.to_sym] = (realestate.send(yr)/local_average.send(yr).to_f*100).round(2)
+        # else
+        #   #p "line 73"
+        #   value_year[yr.to_sym] = (realestate.send(yr)/first_value.to_f*100).round(2)
+        # end
       end
       #p "line 77", value_year
       realestates_hash[:features] << { type: "Feature", geometry: { type: "Point", coordinates: [realestate.lng, realestate.lat] }, properties: value_year }
